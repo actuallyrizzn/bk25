@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BK25 - Generate enterprise automation without enterprise complexity</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="BK25: Generate PowerShell, AppleScript, and Bash automation scripts using natural language. Agents for whomst? For humans who need automation that works.">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/favicon.ico">
+    
+    <!-- Apple PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="BK25">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .header .subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            font-style: italic;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        .chat-panel, .output-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            background: #f8fafc;
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
+            color: #475569;
+        }
+        
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #fafafa;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        
+        .message.user {
+            background: #2563eb;
+            color: white;
+            margin-left: auto;
+        }
+        
+        .message.assistant {
+            background: white;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .message.error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+        
+        .input-container {
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            background: white;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .message-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .send-button {
+            padding: 12px 24px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .send-button:hover:not(:disabled) {
+            background: #1d4ed8;
+        }
+        
+        .send-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .selectors-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .persona-selector, .channel-selector, .platform-selector {
+            flex: 1;
+        }
+        
+        .persona-selector select, .channel-selector select, .platform-selector select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+        }
+        
+        .persona-selector label, .channel-selector label, .platform-selector label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .add-persona-btn {
+            margin-top: 5px;
+            padding: 4px 8px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .add-persona-btn:hover {
+            background: #059669;
+        }
+        
+        @media (max-width: 768px) {
+            .selectors-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+        
+        .close-btn:hover {
+            color: #374151;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        .form-input:focus, .form-textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+        
+        .btn-cancel, .btn-create {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .btn-cancel {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .btn-cancel:hover {
+            background: #e5e7eb;
+        }
+        
+        .btn-create {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-create:hover {
+            background: #1d4ed8;
+        }
+        
+        .output-content {
+            padding: 20px;
+            min-height: 400px;
+        }
+        
+        .script-output {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        
+        .script-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .script-title {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .copy-button {
+            padding: 6px 12px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .copy-button:hover {
+            background: #059669;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-indicator.connected {
+            background: #10b981;
+        }
+        
+        .status-indicator.disconnected {
+            background: #ef4444;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: white;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #2563eb;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .examples {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .examples h4 {
+            margin-bottom: 10px;
+            color: #374151;
+            font-size: 14px;
+        }
+        
+        .example-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        
+        .example-item:hover {
+            background: #f1f5f9;
+            border-color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🤖 BK25</h1>
+            <div class="tagline">Generate enterprise automation without enterprise complexity</div>
+            <div class="subtitle">"Agents for whomst?" - For humans who need automation that works.</div>
+        </header>
+        
+        <main class="main-content">
+            <div class="chat-panel">
+                <div class="panel-header">
+                    <span class="status-indicator" id="status-indicator"></span>
+                    Conversation
+                </div>
+                
+                <div class="chat-container" id="chat-container">
+                    <!-- Initial greeting will be loaded dynamically from current persona -->
+                </div>
+                
+                <div class="input-container">
+                    <div class="selectors-row">
+                        <div class="persona-selector">
+                            <label for="persona-select">Persona: </label>
+                            <select id="persona-select">
+                                <option value="default">Loading...</option>
+                            </select>
+                            <button id="add-persona-btn" class="add-persona-btn">+ Add Persona</button>
+                        </div>
+                        
+                        <div class="channel-selector">
+                            <label for="channel-select">Channel: </label>
+                            <select id="channel-select">
+                                <option value="web">Loading...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="platform-selector">
+                            <label for="platform-select">Platform: </label>
+                            <select id="platform-select">
+                                <option value="powershell">PowerShell (Windows)</option>
+                                <option value="applescript">AppleScript (macOS)</option>
+                                <option value="bash">Bash (Linux/Unix)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="message-input" 
+                            class="message-input" 
+                            placeholder="What can I help you with today?"
+                            autocomplete="off"
+                        >
+                        <button id="send-button" class="send-button">Send</button>
+                    </div>
+                    
+                    <div class="examples">
+                        <h4>💡 Example requests:</h4>
+                        <div class="example-item" data-text="What job do you need to get done?">What job do you need to get done?</div>
+                        <div class="example-item" data-text="Tell me about the task you want to automate">Tell me about the task you want to automate</div>
+                        <div class="example-item" data-text="I can help you generate code for your automation needs">I can help you generate code for your automation needs</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="output-panel">
+                <div class="panel-header">Generated Script</div>
+                
+                <div class="output-content" id="output-content">
+                    <div style="text-align: center; color: #6b7280; padding: 60px 20px;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">📝</div>
+                        <div>Your generated automation scripts will appear here</div>
+                        <div style="font-size: 14px; margin-top: 10px;">Start a conversation to generate your first script!</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="footer">
+            <div>
+                BK25 v1.0.0 - A love letter to the conversational AI community<br>
+                From Peter Swimm (original Botkit PM) and the Toilville team
+            </div>
+        </footer>
+    </div>
+
+    <!-- Add Persona Modal -->
+    <div id="add-persona-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Custom Persona</h2>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            
+            <form id="persona-form">
+                <div class="form-group">
+                    <label class="form-label" for="persona-name">Persona Name *</label>
+                    <input type="text" id="persona-name" class="form-input" placeholder="e.g., Marketing Expert" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="persona-description">Description</label>
+                    <input type="text" id="persona-description" class="form-input" placeholder="Brief description of this persona">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="persona-prompt">System Prompt Instructions *</label>
+                    <textarea id="persona-prompt" class="form-textarea" placeholder="You are a [role]. Your personality is [description]. Your approach is [method]. You should [guidelines]..." required></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" id="cancel-persona">Cancel</button>
+                    <button type="submit" class="btn-create">Create Persona</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // BK25 Web Interface
+        class BK25Interface {
+            constructor() {
+                this.chatContainer = document.getElementById('chat-container');
+                this.messageInput = document.getElementById('message-input');
+                this.sendButton = document.getElementById('send-button');
+                this.platformSelect = document.getElementById('platform-select');
+                this.personaSelect = document.getElementById('persona-select');
+                this.channelSelect = document.getElementById('channel-select');
+                this.addPersonaBtn = document.getElementById('add-persona-btn');
+                this.outputContent = document.getElementById('output-content');
+                this.statusIndicator = document.getElementById('status-indicator');
+                
+                this.isConnected = false;
+                this.isLoading = false;
+                this.currentPersona = null;
+                this.currentChannel = null;
+                
+                this.init();
+            }
+            
+            init() {
+                // Event listeners
+                this.sendButton.addEventListener('click', () => this.sendMessage());
+                this.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
+                });
+                
+                // Example click handlers
+                document.querySelectorAll('.example-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        this.messageInput.value = item.dataset.text;
+                        this.messageInput.focus();
+                    });
+                });
+                
+                // Persona change handler
+                this.personaSelect.addEventListener('change', () => this.switchPersona());
+                
+                // Channel change handler
+                this.channelSelect.addEventListener('change', () => this.switchChannel());
+                
+                // Add persona button handler
+                this.addPersonaBtn.addEventListener('click', () => this.showAddPersonaModal());
+                
+                // Modal handlers
+                this.setupModalHandlers();
+                
+                // Load personas, channels and check server status
+                this.loadPersonas();
+                this.loadChannels();
+                this.checkServerStatus();
+                
+                // Auto-focus input
+                this.messageInput.focus();
+            }
+            
+            async checkServerStatus() {
+                try {
+                    const response = await fetch('/health');
+                    const data = await response.json();
+                    
+                    this.isConnected = response.ok && data.status === 'healthy';
+                    this.updateStatusIndicator();
+                    
+                    if (!this.isConnected) {
+                        this.addMessage('system', '⚠️ Server connection issue. Please check that BK25 is running.');
+                    }
+                } catch (error) {
+                    this.isConnected = false;
+                    this.updateStatusIndicator();
+                    this.addMessage('system', '❌ Cannot connect to BK25 server. Please start the server with `npm start`.');
+                }
+            }
+            
+            updateStatusIndicator() {
+                this.statusIndicator.className = `status-indicator ${this.isConnected ? 'connected' : 'disconnected'}`;
+            }
+            
+            async sendMessage() {
+                const message = this.messageInput.value.trim();
+                if (!message || this.isLoading) return;
+                
+                // Add user message
+                this.addMessage('user', message);
+                this.messageInput.value = '';
+                
+                // Show loading
+                this.setLoading(true);
+                
+                try {
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            context: {
+                                platform: this.platformSelect.value
+                            }
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        this.addMessage('assistant', data.message);
+                        
+                        // If automation was generated, show it
+                        if (data.automation) {
+                            this.displayScript(data.automation);
+                        }
+                    } else {
+                        this.addMessage('error', data.error || 'An error occurred');
+                    }
+                } catch (error) {
+                    this.addMessage('error', 'Failed to connect to server: ' + error.message);
+                } finally {
+                    this.setLoading(false);
+                }
+            }
+            
+            addMessage(type, content) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}`;
+                messageDiv.innerHTML = content;
+                
+                this.chatContainer.appendChild(messageDiv);
+                this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
+            }
+            
+            setLoading(loading) {
+                this.isLoading = loading;
+                this.sendButton.disabled = loading;
+                
+                if (loading) {
+                    this.sendButton.innerHTML = '<div class="loading"></div>';
+                } else {
+                    this.sendButton.innerHTML = 'Send';
+                }
+            }
+            
+            displayScript(automation) {
+                const scriptHtml = `
+                    <div class="script-header">
+                        <div class="script-title">
+                            📄 ${automation.filename || 'Generated Script'} 
+                            <span style="font-size: 12px; color: #6b7280;">(${automation.platform})</span>
+                        </div>
+                        <button class="copy-button" onclick="this.copyScript('${automation.script.replace(/'/g, "\\'")}')">
+                            Copy Script
+                        </button>
+                    </div>
+                    <div class="script-output">${this.escapeHtml(automation.script)}</div>
+                    ${automation.documentation ? `
+                        <div style="margin-top: 15px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                            <h4 style="margin-bottom: 10px; color: #374151;">📋 Documentation:</h4>
+                            <div style="font-size: 14px; color: #6b7280; white-space: pre-line;">${this.escapeHtml(automation.documentation)}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                this.outputContent.innerHTML = scriptHtml;
+            }
+            
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            copyScript(script) {
+                navigator.clipboard.writeText(script).then(() => {
+                    // Show feedback
+                    const button = event.target;
+                    const originalText = button.textContent;
+                    button.textContent = 'Copied!';
+                    button.style.background = '#059669';
+                    
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.background = '#10b981';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy script:', err);
+                });
+            }
+            
+            async loadPersonas() {
+                try {
+                    const response = await fetch('/api/personas?channel=web');
+                    if (response.ok) {
+                        const personas = await response.json();
+                        this.populatePersonaSelect(personas);
+                        
+                        // Load current persona
+                        const currentResponse = await fetch('/api/personas/current');
+                        if (currentResponse.ok) {
+                            const currentPersona = await currentResponse.json();
+                            this.currentPersona = currentPersona;
+                            this.updatePersonaUI(currentPersona);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to load personas:', error);
+                    // Keep default option if loading fails
+                }
+            }
+            
+            populatePersonaSelect(personas) {
+                this.personaSelect.innerHTML = '';
+                personas.forEach(persona => {
+                    const option = document.createElement('option');
+                    option.value = persona.id;
+                    option.textContent = persona.name;
+                    this.personaSelect.appendChild(option);
+                });
+            }
+            
+            async switchPersona() {
+                const selectedPersonaId = this.personaSelect.value;
+                if (!selectedPersonaId) return;
+                
+                try {
+                    const response = await fetch('/api/personas/switch', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ personaId: selectedPersonaId })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.currentPersona = data.persona;
+                        this.updatePersonaUI(data.persona);
+                        
+                        // Clear chat and show new persona greeting
+                        this.clearChat();
+                        this.addMessage('assistant', data.persona.greeting);
+                        this.updateExamples(data.persona.examples);
+                    }
+                } catch (error) {
+                    console.error('Failed to switch persona:', error);
+                }
+            }
+            
+            updatePersonaUI(persona) {
+                if (!persona) return;
+                
+                // Update persona select
+                this.personaSelect.value = persona.id;
+                
+                // Show persona greeting if chat is empty
+                if (this.chatContainer.children.length === 0) {
+                    this.addMessage('assistant', persona.greeting);
+                    this.updateExamples(persona.examples);
+                }
+                
+                // Update placeholder based on persona
+                if (persona.personality && persona.personality.tone) {
+                    // Keep the friendly placeholder for now
+                    this.messageInput.placeholder = "What can I help you with today?";
+                }
+            }
+            
+            updateExamples(examples) {
+                if (!examples || examples.length === 0) return;
+                
+                const examplesContainer = document.querySelector('.examples');
+                const exampleItems = examplesContainer.querySelectorAll('.example-item');
+                
+                // Update existing examples with persona-specific ones
+                examples.slice(0, 3).forEach((example, index) => {
+                    if (exampleItems[index]) {
+                        exampleItems[index].textContent = example;
+                        exampleItems[index].dataset.text = example;
+                    }
+                });
+            }
+            
+            clearChat() {
+                this.chatContainer.innerHTML = '';
+            }
+            
+            async loadChannels() {
+                try {
+                    const response = await fetch('/api/channels');
+                    if (response.ok) {
+                        const channels = await response.json();
+                        this.populateChannelSelect(channels);
+                        
+                        // Load current channel
+                        const currentResponse = await fetch('/api/channels/current');
+                        if (currentResponse.ok) {
+                            const currentChannel = await currentResponse.json();
+                            this.currentChannel = currentChannel;
+                            this.updateChannelUI(currentChannel);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to load channels:', error);
+                }
+            }
+            
+            populateChannelSelect(channels) {
+                this.channelSelect.innerHTML = '';
+                channels.forEach(channel => {
+                    const option = document.createElement('option');
+                    option.value = channel.id;
+                    option.textContent = channel.name;
+                    this.channelSelect.appendChild(option);
+                });
+            }
+            
+            async switchChannel() {
+                const selectedChannelId = this.channelSelect.value;
+                if (!selectedChannelId) return;
+                
+                try {
+                    const response = await fetch('/api/channels/switch', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ channelId: selectedChannelId })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.currentChannel = data.channel;
+                        this.updateChannelUI(data.channel);
+                        
+                        // Update examples based on channel capabilities
+                        this.updateChannelExamples(data.channel, data.artifacts);
+                    }
+                } catch (error) {
+                    console.error('Failed to switch channel:', error);
+                }
+            }
+            
+            updateChannelUI(channel) {
+                if (!channel) return;
+                this.channelSelect.value = channel.id;
+            }
+            
+            updateChannelExamples(channel, artifacts) {
+                if (!artifacts || artifacts.length === 0) return;
+                
+                const examplesContainer = document.querySelector('.examples');
+                const exampleItems = examplesContainer.querySelectorAll('.example-item');
+                
+                // Update examples based on channel artifacts
+                const channelExamples = [
+                    `Create a ${channel.name} ${artifacts[0] || 'component'}`,
+                    `Generate a ${artifacts[1] || 'workflow'} for ${channel.name}`,
+                    `Build a ${artifacts[2] || 'interface'} for ${channel.name}`
+                ];
+                
+                channelExamples.forEach((example, index) => {
+                    if (exampleItems[index]) {
+                        exampleItems[index].textContent = example;
+                        exampleItems[index].dataset.text = example;
+                    }
+                });
+            }
+            
+            showAddPersonaModal() {
+                const modal = document.getElementById('add-persona-modal');
+                modal.style.display = 'block';
+            }
+            
+            hideAddPersonaModal() {
+                const modal = document.getElementById('add-persona-modal');
+                modal.style.display = 'none';
+                
+                // Clear form
+                document.getElementById('persona-form').reset();
+            }
+            
+            setupModalHandlers() {
+                const modal = document.getElementById('add-persona-modal');
+                const closeBtn = document.getElementById('close-modal');
+                const cancelBtn = document.getElementById('cancel-persona');
+                const form = document.getElementById('persona-form');
+                
+                // Close modal handlers
+                closeBtn.addEventListener('click', () => this.hideAddPersonaModal());
+                cancelBtn.addEventListener('click', () => this.hideAddPersonaModal());
+                
+                // Click outside to close
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        this.hideAddPersonaModal();
+                    }
+                });
+                
+                // Form submission
+                form.addEventListener('submit', (e) => this.handleCreatePersona(e));
+            }
+            
+            async handleCreatePersona(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('persona-name').value.trim();
+                const description = document.getElementById('persona-description').value.trim();
+                const systemPrompt = document.getElementById('persona-prompt').value.trim();
+                
+                if (!name || !systemPrompt) {
+                    alert('Please fill in the required fields (Name and System Prompt)');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/api/personas/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            name: name,
+                            description: description,
+                            systemPrompt: systemPrompt,
+                            channels: ['web'] // Default to web channel
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Add new persona to dropdown
+                        const option = document.createElement('option');
+                        option.value = data.persona.id;
+                        option.textContent = data.persona.name;
+                        this.personaSelect.appendChild(option);
+                        
+                        // Switch to new persona
+                        this.personaSelect.value = data.persona.id;
+                        await this.switchPersona();
+                        
+                        // Hide modal
+                        this.hideAddPersonaModal();
+                        
+                        // Show success message
+                        this.addMessage('system', `✅ Created custom persona: ${data.persona.name}`);
+                        
+                    } else {
+                        const error = await response.json();
+                        alert(`Failed to create persona: ${error.error}`);
+                    }
+                } catch (error) {
+                    console.error('Failed to create persona:', error);
+                    alert('Failed to create persona. Please try again.');
+                }
+            }
+        }
+        
+        // Global function for copy button
+        window.copyScript = function(script) {
+            navigator.clipboard.writeText(script);
+        };
+        
+        // Initialize the interface when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new BK25Interface();
+        });
+        
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

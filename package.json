@@ -1,0 +1,44 @@
+{
+  "name": "bk25",
+  "version": "1.0.0",
+  "description": "BK25: Generate enterprise automation without enterprise complexity",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "build": "echo 'No build step needed - pure Node.js'",
+    "test": "node test/test.js"
+  },
+  "keywords": [
+    "automation",
+    "rpa",
+    "powershell",
+    "applescript",
+    "conversational-ai",
+    "local-llm",
+    "ollama"
+  ],
+  "author": "Toilville (Peter Swimm)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/toilville/bk25.git"
+  },
+  "homepage": "https://github.com/toilville/bk25#readme",
+  "bugs": {
+    "url": "https://github.com/toilville/bk25/issues"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "sqlite3": "^5.1.6",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
