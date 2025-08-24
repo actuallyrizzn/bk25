@@ -5,6 +5,7 @@ End-to-end tests for complete BK25 workflows
 import pytest
 import json
 import asyncio
+import time
 from pathlib import Path
 from unittest.mock import Mock, AsyncMock, patch
 from src.core.bk25 import BK25Core
@@ -40,7 +41,7 @@ class TestCompleteWorkflow:
                 },
                 "examples": ["Create a backup script", "Automate file processing"],
                 "channels": ["web", "cli"],
-                "system_prompt": "You are an automation expert focused on creating efficient, reliable scripts."
+                "systemPrompt": "You are an automation expert focused on creating efficient, reliable scripts."
             },
             {
                 "id": "web-developer",
@@ -56,7 +57,7 @@ class TestCompleteWorkflow:
                 },
                 "examples": ["Web scraping script", "Browser automation"],
                 "channels": ["web"],
-                "system_prompt": "You are a web development expert specializing in automation and scripting."
+                "systemPrompt": "You are a web development expert specializing in automation and scripting."
             }
         ]
         

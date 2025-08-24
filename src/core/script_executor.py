@@ -130,7 +130,7 @@ class ScriptExecutor:
     async def execute_script(self, request: ExecutionRequest) -> ExecutionResult:
         """Execute a script with full monitoring and safety checks"""
         try:
-            self.logger.info(f"📝 Executing {request.platform} script: {request.filename or 'inline'}")
+            self.logger.info(f"[EXEC] Executing {request.platform} script: {request.filename or 'inline'}")
             
             # Validate execution request
             validation = self._validate_execution_request(request)
@@ -153,7 +153,7 @@ class ScriptExecutor:
             return result
             
         except Exception as error:
-            self.logger.error(f"❌ Script execution failed: {error}")
+            self.logger.error(f"[ERROR] Script execution failed: {error}")
             return ExecutionResult(
                 success=False,
                 status=ExecutionStatus.FAILED,
@@ -433,11 +433,11 @@ class ScriptExecutor:
         """Log execution results"""
         if result.success:
             self.logger.info(
-                f"✅ Script execution completed successfully in {result.execution_time:.2f}s"
+                f"[SUCCESS] Script execution completed successfully in {result.execution_time:.2f}s"
             )
         else:
             self.logger.error(
-                f"❌ Script execution failed: {result.error} (Status: {result.status.value})"
+                f"[ERROR] Script execution failed: {result.error} (Status: {result.status.value})"
             )
     
     async def cancel_execution(self, execution_id: str) -> bool:

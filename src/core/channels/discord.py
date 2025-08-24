@@ -20,7 +20,7 @@ class DiscordChannel(BaseChannel):
             'id': 'discord',
             'capabilities': ['embeds', 'slash_commands', 'reactions', 'voice'],
             'artifact_types': ['embeds', 'slash_commands', 'components'],
-            'metadata': {'color': '#5865F2', 'icon': '🎮'}
+            'metadata': {'color': '#5865F2', 'icon': '[DISCORD]'}
         })
     
     def generate_artifact(self, request: ArtifactRequest) -> ArtifactResult:

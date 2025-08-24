@@ -20,7 +20,7 @@ class SlackChannel(BaseChannel):
             'id': 'slack',
             'capabilities': ['blocks', 'threads', 'reactions', 'slash_commands'],
             'artifact_types': ['blocks', 'attachments', 'modals'],
-            'metadata': {'color': '#4A154B', 'icon': '💬'}
+            'metadata': {'color': '#4A154B', 'icon': '[SLACK]'}
         })
     
     def generate_artifact(self, request: ArtifactRequest) -> ArtifactResult:

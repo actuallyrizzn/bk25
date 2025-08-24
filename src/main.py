@@ -68,16 +68,16 @@ async def startup_event():
         # Start execution monitoring system
         await bk25.start_execution_monitoring()
         
-        print("🚀 BK25 Python Edition starting up...")
-        print("📝 Migration Status: Phase 5 - Script Execution & Monitoring")
-        print(f"🎭 Personas loaded: {len(bk25.persona_manager.get_all_personas())}")
-        print(f"📺 Channels available: {len(bk25.channel_manager.get_all_channels())}")
-        print(f"⚙️ Code generators: {len(bk25.code_generator.get_supported_platforms())} platforms")
-        print(f"🤖 LLM providers: {len(bk25.llm_manager.get_available_providers())} configured")
-        print(f"🚀 Script execution: available with monitoring")
+        print("[STARTUP] BK25 Python Edition starting up...")
+        print("[STATUS] Migration Status: Phase 5 - Script Execution & Monitoring")
+        print(f"[PERSONAS] Personas loaded: {len(bk25.persona_manager.get_all_personas())}")
+        print(f"[CHANNELS] Channels available: {len(bk25.channel_manager.get_all_channels())}")
+        print(f"[GENERATORS] Code generators: {len(bk25.code_generator.get_supported_platforms())} platforms")
+        print(f"[LLM] LLM providers: {len(bk25.llm_manager.get_available_providers())} configured")
+        print(f"[EXEC] Script execution: available with monitoring")
         
     except Exception as error:
-        print(f"❌ Failed to initialize BK25: {error}")
+        print(f"[ERROR] Failed to initialize BK25: {error}")
         raise
 
 @app.get("/health")
@@ -150,7 +150,12 @@ async def get_current_persona():
             "id": current_persona.id,
             "name": current_persona.name,
             "description": current_persona.description,
-            "personality": current_persona.personality,
+            "personality": {
+                "tone": current_persona.personality.tone,
+                "approach": current_persona.personality.approach,
+                "philosophy": current_persona.personality.philosophy,
+                "motto": current_persona.personality.motto
+            },
             "capabilities": current_persona.capabilities,
             "examples": current_persona.examples,
             "channels": current_persona.channels
@@ -237,7 +242,12 @@ async def create_persona(request: Request):
                 "id": new_persona.id,
                 "name": new_persona.name,
                 "description": new_persona.description,
-                "personality": new_persona.personality,
+                "personality": {
+                    "tone": new_persona.personality.tone,
+                    "approach": new_persona.personality.approach,
+                    "philosophy": new_persona.personality.philosophy,
+                    "motto": new_persona.personality.motto
+                },
                 "capabilities": new_persona.capabilities,
                 "examples": new_persona.examples,
                 "channels": new_persona.channels
@@ -264,8 +274,8 @@ async def get_channels():
                     "description": channel.description,
                     "capabilities": {
                         name: {
-                            "supported": cap.supported,
-                            "description": cap.description
+                            "supported": cap.supported if hasattr(cap, 'supported') else cap.get('supported', False),
+                            "description": cap.description if hasattr(cap, 'description') else cap.get('description', '')
                         }
                         for name, cap in channel.capabilities.items()
                     },
@@ -324,8 +334,8 @@ async def get_channel(channel_id: str):
         "description": channel.description,
         "capabilities": {
             name: {
-                "supported": cap.supported,
-                "description": cap.description
+                "supported": cap.supported if hasattr(cap, 'supported') else cap.get('supported', False),
+                "description": cap.description if hasattr(cap, 'description') else cap.get('description', '')
             }
             for name, cap in channel.capabilities.items()
         },
@@ -804,14 +814,23 @@ async def internal_error_handler(request, exc):
     )
 
 if __name__ == "__main__":
-    # Get configuration from environment
-    host = os.getenv("BK25_HOST", "0.0.0.0")
-    port = int(os.getenv("BK25_PORT", "8000"))
-    reload = os.getenv("BK25_RELOAD", "false").lower() == "true"
+    import argparse
     
-    print(f"🌐 Starting BK25 on {host}:{port}")
-    print(f"🔄 Reload mode: {reload}")
-    print(f"📚 API docs available at: http://{host}:{port}/docs")
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="BK25 Python Edition")
+    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
+    parser.add_argument("--reload", action="store_true", help="Enable auto-reload")
+    args = parser.parse_args()
+    
+    # Get configuration from command line args or environment
+    host = args.host or os.getenv("BK25_HOST", "0.0.0.0")
+    port = args.port or int(os.getenv("BK25_PORT", "8000"))
+    reload = args.reload or os.getenv("BK25_RELOAD", "false").lower() == "true"
+    
+    print(f"[SERVER] Starting BK25 on {host}:{port}")
+    print(f"[RELOAD] Reload mode: {reload}")
+    print(f"[DOCS] API docs available at: http://{host}:{port}/docs")
     
     # Start the server
     uvicorn.run(

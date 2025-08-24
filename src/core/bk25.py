@@ -184,6 +184,11 @@ class BK25Core:
             # Generate response
             response = await self.generate_completion(message, conversation_id)
             
+            # Store messages in conversation memory for conversation history
+            if conversation_id:
+                self.memory.add_message(conversation_id, "user", message)
+                self.memory.add_message(conversation_id, "assistant", response)
+            
             # Get current persona and channel info
             current_persona = self.persona_manager.get_current_persona()
             current_channel = self.channel_manager.get_current_channel()
@@ -229,7 +234,13 @@ class BK25Core:
             persona = self.persona_manager.get_persona(persona_id)
             return persona.to_dict() if persona else {}
         else:
-            return self.persona_manager.to_dict()
+            # Return all personas information
+            all_personas = self.persona_manager.get_all_personas()
+            return {
+                'personas': [persona.to_dict() for persona in all_personas],
+                'total_count': len(all_personas),
+                'current_persona': self.persona_manager.get_current_persona().id if self.persona_manager.get_current_persona() else None
+            }
     
     def get_channel_info(self, channel_id: Optional[str] = None) -> Dict[str, Any]:
         """Get channel information"""
@@ -245,7 +256,7 @@ class BK25Core:
     async def reload_personas(self) -> None:
         """Reload personas from disk"""
         await self.persona_manager.reload_personas()
-        self.logger.info("🔄 Personas reloaded")
+        self.logger.info("[RELOAD] Personas reloaded")
     
     def switch_persona(self, persona_id: str) -> Optional[Dict[str, Any]]:
         """Switch to a different persona"""
@@ -764,16 +775,16 @@ class BK25Core:
         """Start the execution monitoring system"""
         try:
             await self.execution_monitor.start_monitoring()
-            self.logger.info("✅ Execution monitoring system started")
+            self.logger.info("[SUCCESS] Execution monitoring system started")
         except Exception as error:
-            self.logger.error(f"❌ Failed to start execution monitoring: {error}")
+            self.logger.error(f"[ERROR] Failed to start execution monitoring: {error}")
             raise
     
     async def shutdown_execution_monitoring(self):
         """Shutdown the execution monitoring system"""
         try:
             await self.execution_monitor.shutdown()
-            self.logger.info("✅ Execution monitoring system shutdown complete")
+            self.logger.info("[SUCCESS] Execution monitoring system shutdown complete")
         except Exception as error:
-            self.logger.error(f"❌ Failed to shutdown execution monitoring: {error}")
+            self.logger.error(f"[ERROR] Failed to shutdown execution monitoring: {error}")
             raise

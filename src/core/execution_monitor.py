@@ -114,7 +114,7 @@ class ExecutionMonitor:
             self.logger.info("[SUCCESS] Execution monitoring system started")
             
         except Exception as error:
-            self.logger.error(f"❌ Failed to start monitoring: {error}")
+            self.logger.error(f"[ERROR] Failed to start monitoring: {error}")
             raise
     
     async def submit_task(
@@ -154,7 +154,7 @@ class ExecutionMonitor:
             # Update statistics
             self.stats['total_tasks'] += 1
             
-            self.logger.info(f"📝 Task submitted: {name} (ID: {task_id})")
+            self.logger.info(f"[TASK] Task submitted: {name} (ID: {task_id})")
             
             # Notify status change
             await self._notify_status_change(task)
@@ -162,7 +162,7 @@ class ExecutionMonitor:
             return task_id
             
         except Exception as error:
-            self.logger.error(f"❌ Failed to submit task: {error}")
+            self.logger.error(f"[ERROR] Failed to submit task: {error}")
             raise
     
     async def get_task_status(self, task_id: str) -> Optional[ExecutionTask]:
@@ -208,7 +208,7 @@ class ExecutionMonitor:
             return True
             
         except Exception as error:
-            self.logger.error(f"❌ Failed to cancel task {task_id}: {error}")
+            self.logger.error(f"[ERROR] Failed to cancel task {task_id}: {error}")
             return False
     
     async def pause_task(self, task_id: str) -> bool:
@@ -229,7 +229,7 @@ class ExecutionMonitor:
             return True
             
         except Exception as error:
-            self.logger.error(f"❌ Failed to pause task {task_id}: {error}")
+            self.logger.error(f"[ERROR] Failed to pause task {task_id}: {error}")
             return False
     
     async def resume_task(self, task_id: str) -> bool:
@@ -250,7 +250,7 @@ class ExecutionMonitor:
             return True
             
         except Exception as error:
-            self.logger.error(f"❌ Failed to resume task {task_id}: {error}")
+            self.logger.error(f"[ERROR] Failed to resume task {task_id}: {error}")
             return False
     
     async def get_execution_history(
@@ -280,7 +280,7 @@ class ExecutionMonitor:
             return tasks[:limit]
             
         except Exception as error:
-            self.logger.error(f"❌ Failed to get execution history: {error}")
+            self.logger.error(f"[ERROR] Failed to get execution history: {error}")
             return []
     
     async def get_system_statistics(self) -> Dict[str, Any]:
@@ -325,7 +325,7 @@ class ExecutionMonitor:
             }
             
         except Exception as error:
-            self.logger.error(f"❌ Failed to get system statistics: {error}")
+            self.logger.error(f"[ERROR] Failed to get system statistics: {error}")
             return {}
     
     def add_status_callback(self, callback: Callable[[ExecutionTask], None]):
@@ -365,7 +365,7 @@ class ExecutionMonitor:
             except asyncio.CancelledError:
                 break
             except Exception as error:
-                self.logger.error(f"❌ Task queue processing error: {error}")
+                self.logger.error(f"[ERROR] Task queue processing error: {error}")
                 await asyncio.sleep(1)
     
     async def _execute_task(self, task: ExecutionTask):
@@ -389,7 +389,7 @@ class ExecutionMonitor:
             await execution_task
             
         except Exception as error:
-            self.logger.error(f"❌ Task execution failed: {task.id}: {error}")
+            self.logger.error(f"[ERROR] Task execution failed: {task.id}: {error}")
             task.status = TaskStatus.FAILED
             task.error = str(error)
             task.completed_at = datetime.now()
@@ -461,7 +461,7 @@ class ExecutionMonitor:
             except asyncio.CancelledError:
                 break
             except Exception as error:
-                self.logger.error(f"❌ Metrics collection error: {error}")
+                self.logger.error(f"[ERROR] Metrics collection error: {error}")
                 await asyncio.sleep(1)
     
     async def _cleanup_old_tasks(self):
@@ -490,7 +490,7 @@ class ExecutionMonitor:
             except asyncio.CancelledError:
                 break
             except Exception as error:
-                self.logger.error(f"❌ Cleanup error: {error}")
+                self.logger.error(f"[ERROR] Cleanup error: {error}")
                 await asyncio.sleep(1)
     
     async def _notify_status_change(self, task: ExecutionTask):
@@ -499,7 +499,7 @@ class ExecutionMonitor:
             try:
                 callback(task)
             except Exception as error:
-                self.logger.error(f"❌ Status callback error: {error}")
+                self.logger.error(f"[ERROR] Status callback error: {error}")
     
     async def _notify_completion(self, task: ExecutionTask):
         """Notify completion callbacks"""
@@ -507,7 +507,7 @@ class ExecutionMonitor:
             try:
                 callback(task)
             except Exception as error:
-                self.logger.error(f"❌ Completion callback error: {error}")
+                self.logger.error(f"[ERROR] Completion callback error: {error}")
     
     async def shutdown(self):
         """Shutdown the monitoring system"""
@@ -525,5 +525,5 @@ class ExecutionMonitor:
             self.logger.info("[SUCCESS] Execution monitoring system shutdown complete")
             
         except Exception as error:
-            self.logger.error(f"❌ Shutdown error: {error}")
+            self.logger.error(f"[ERROR] Shutdown error: {error}")
             raise

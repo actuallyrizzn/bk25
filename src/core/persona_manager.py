@@ -35,6 +35,20 @@ class Persona:
     system_prompt: str
     examples: List[str]
     channels: List[str]
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert persona to dictionary for API responses"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'greeting': self.greeting,
+            'capabilities': self.capabilities,
+            'personality': asdict(self.personality),
+            'system_prompt': self.system_prompt,
+            'examples': self.examples,
+            'channels': self.channels
+        }
 
 class PersonaManager:
     """Manages AI personas for BK25"""

@@ -19,7 +19,7 @@ class WhatsAppChannel(BaseChannel):
             'id': 'whatsapp',
             'capabilities': ['media', 'templates', 'quick_replies', 'location'],
             'artifact_types': ['templates', 'media', 'interactive'],
-            'metadata': {'color': '#25D366', 'icon': '📱'}
+            'metadata': {'color': '#25D366', 'icon': '[WHATSAPP]'}
         })
     
     def generate_artifact(self, request: ArtifactRequest) -> ArtifactResult:

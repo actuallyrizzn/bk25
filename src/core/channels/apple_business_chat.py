@@ -19,7 +19,7 @@ class AppleBusinessChatChannel(BaseChannel):
             'id': 'apple-business-chat',
             'capabilities': ['rich_links', 'payments', 'scheduling', 'file_sharing'],
             'artifact_types': ['rich_links', 'interactive_messages', 'payments'],
-            'metadata': {'color': '#000000', 'icon': '🍎'}
+            'metadata': {'color': '#000000', 'icon': '[APPLE]'}
         })
     
     def generate_artifact(self, request: ArtifactRequest) -> ArtifactResult:

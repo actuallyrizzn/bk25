@@ -20,7 +20,7 @@ class TeamsChannel(BaseChannel):
             'id': 'teams',
             'capabilities': ['adaptive_cards', 'task_modules', 'bot_framework', 'tabs'],
             'artifact_types': ['adaptive_cards', 'task_modules', 'bot_activities'],
-            'metadata': {'color': '#6264A7', 'icon': '🏢'}
+            'metadata': {'color': '#6264A7', 'icon': '[TEAMS]'}
         })
     
     def generate_artifact(self, request: ArtifactRequest) -> ArtifactResult:

@@ -75,7 +75,7 @@ class CodeGenerator:
     async def generate_script(self, request: GenerationRequest, llm_manager: Optional[Any] = None, prompt_engineer: Optional[Any] = None) -> GenerationResult:
         """Generate a script based on the request"""
         try:
-            self.logger.info(f"📝 Generating {request.platform} script for: {request.description[:50]}...")
+            self.logger.info(f"[GENERATE] Generating {request.platform} script for: {request.description[:50]}...")
             
             # Determine platform if auto-detection is requested
             platform = await self._determine_platform(request)
@@ -93,7 +93,7 @@ class CodeGenerator:
                 try:
                     result = await self._generate_with_llm(generator, request, llm_manager, prompt_engineer)
                     if result.success:
-                        self.logger.info(f"✅ LLM script generation completed for {platform}")
+                        self.logger.info(f"[SUCCESS] LLM script generation completed for {platform}")
                         # Validate the generated script
                         validation = generator.validate_script(result.script)
                         result.validation = validation
@@ -114,11 +114,11 @@ class CodeGenerator:
                     result.success = False
                     result.error = f"Script validation failed: {', '.join(validation.issues)}"
             
-            self.logger.info(f"✅ Template-based script generation completed for {platform}")
+            self.logger.info(f"[SUCCESS] Template-based script generation completed for {platform}")
             return result
             
         except Exception as error:
-            self.logger.error(f"❌ Script generation failed: {error}")
+            self.logger.error(f"[ERROR] Script generation failed: {error}")
             return GenerationResult(
                 success=False,
                 error=f"Generation error: {str(error)}"
@@ -442,7 +442,7 @@ main "$@"'''
     
     async def batch_generate(self, requests: List[GenerationRequest]) -> List[GenerationResult]:
         """Generate multiple scripts in batch"""
-        self.logger.info(f"🔄 Starting batch generation of {len(requests)} scripts")
+        self.logger.info(f"[BATCH] Starting batch generation of {len(requests)} scripts")
         
         tasks = [self.generate_script(request) for request in requests]
         results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -458,7 +458,7 @@ main "$@"'''
             else:
                 processed_results.append(result)
         
-        self.logger.info(f"✅ Batch generation completed: {len([r for r in processed_results if r.success])}/{len(requests)} successful")
+        self.logger.info(f"[SUCCESS] Batch generation completed: {len([r for r in processed_results if r.success])}/{len(requests)} successful")
         return processed_results
     
     def get_generation_statistics(self) -> Dict[str, Any]:
