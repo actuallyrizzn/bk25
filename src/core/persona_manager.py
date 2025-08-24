@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
 
-from ..logging_config import get_logger
+from src.logging_config import get_logger
 
 logger = get_logger("persona_manager")
 

@@ -15,3 +15,10 @@ pytest-asyncio
 
 # System monitoring and process management
 psutil
+pytest
+pytest-asyncio
+pytest-cov
+pytest-html
+pytest-xdist
+coverage
+httpx

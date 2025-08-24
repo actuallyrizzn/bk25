@@ -1,0 +1,13 @@
+BK25 Test Suite Results
+==============================
+
+Timestamp: 2025-08-24 15:59:43
+Overall Success: FAILED
+Total Duration: 10.18s
+
+Unit Tests: FAIL (5.00s)
+  Tests: 0 total, 0 passed, 0 failed
+Integration Tests: FAIL (2.08s)
+  Tests: 0 total, 0 passed, 0 failed
+End-to-End Tests: FAIL (3.10s)
+  Tests: 0 total, 0 passed, 0 failed

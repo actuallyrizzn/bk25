@@ -13,15 +13,15 @@ import asyncio
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 
-from src.core.persona_manager import PersonaManager
-from src.core.channel_manager import ChannelManager
-from src.core.memory import ConversationMemory
-from src.core.code_generator import CodeGenerator
-from src.core.llm_integration import LLMManager
-from src.core.prompt_engineering import PromptEngineer
-from src.core.script_executor import ScriptExecutor, ExecutionRequest, ExecutionPolicy
-from src.core.execution_monitor import ExecutionMonitor, TaskPriority, TaskStatus
-from src.logging_config import get_logger
+from .persona_manager import PersonaManager
+from .channel_manager import ChannelManager
+from .memory import ConversationMemory
+from .code_generator import CodeGenerator
+from .llm_integration import LLMManager
+from .prompt_engineering import PromptEngineer
+from .script_executor import ScriptExecutor, ExecutionRequest, ExecutionPolicy
+from .execution_monitor import ExecutionMonitor, TaskPriority, TaskStatus
+from ..logging_config import get_logger
 
 logger = get_logger("bk25_core")
 
@@ -282,7 +282,7 @@ class BK25Core:
     async def generate_script(self, description: str, platform: str = 'auto', options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Generate a script using the code generator"""
         try:
-            from src.core.code_generator import GenerationRequest
+            from .code_generator import GenerationRequest
             
             request = GenerationRequest(
                 description=description,
@@ -359,7 +359,7 @@ class BK25Core:
     async def test_llm_generation(self, prompt: str, provider: Optional[str] = None) -> Dict[str, Any]:
         """Test LLM generation with a simple prompt"""
         try:
-            from src.core.llm_integration import LLMRequest
+            from .llm_integration import LLMRequest
             
             request = LLMRequest(
                 prompt=prompt,
@@ -390,7 +390,7 @@ class BK25Core:
         """Improve an existing script based on feedback"""
         try:
             # Create prompt context
-            from src.core.prompt_engineering import PromptContext
+            from .prompt_engineering import PromptContext
             
             context = PromptContext(
                 persona_id=options.get('persona_id', 'default') if options else 'default',
@@ -412,7 +412,7 @@ class BK25Core:
             )
             
             # Generate improved script
-            from src.core.llm_integration import LLMRequest
+            from .llm_integration import LLMRequest
             
             llm_request = LLMRequest(
                 prompt=f"{prompt.system_message}\n\n{prompt.user_prompt}\n\n{prompt.output_format}",
@@ -463,7 +463,7 @@ class BK25Core:
         """Validate and analyze a script for quality and improvements"""
         try:
             # Create prompt context
-            from src.core.prompt_engineering import PromptContext
+            from .prompt_engineering import PromptContext
             
             context = PromptContext(
                 persona_id=options.get('persona_id', 'default') if options else 'default',
@@ -484,7 +484,7 @@ class BK25Core:
             )
             
             # Generate validation analysis
-            from src.core.llm_integration import LLMRequest
+            from .llm_integration import LLMRequest
             
             llm_request = LLMRequest(
                 prompt=f"{prompt.system_message}\n\n{prompt.user_prompt}",

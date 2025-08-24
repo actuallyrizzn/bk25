@@ -88,7 +88,7 @@ async def health_check():
     
     status = bk25.get_system_status()
     
-            return {
+    return {
             "status": "healthy",
             "version": "1.0.0",
             "tagline": "Agents for whomst? For humans who need automation that works.",
