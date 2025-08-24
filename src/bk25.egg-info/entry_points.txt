@@ -1,0 +1,2 @@
+[console_scripts]
+bk25 = bk25.server:main

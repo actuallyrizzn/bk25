@@ -1,0 +1,17 @@
+pyproject.toml
+src/bk25/__init__.py
+src/bk25/channel_manager.py
+src/bk25/core.py
+src/bk25/memory.py
+src/bk25/persona_manager.py
+src/bk25/server.py
+src/bk25.egg-info/PKG-INFO
+src/bk25.egg-info/SOURCES.txt
+src/bk25.egg-info/dependency_links.txt
+src/bk25.egg-info/entry_points.txt
+src/bk25.egg-info/requires.txt
+src/bk25.egg-info/top_level.txt
+src/bk25/generators/__init__.py
+src/bk25/generators/applescript.py
+src/bk25/generators/bash.py
+src/bk25/generators/powershell.py
