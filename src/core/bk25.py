@@ -16,6 +16,7 @@ from pathlib import Path
 from src.core.persona_manager import PersonaManager
 from src.core.channel_manager import ChannelManager
 from src.core.memory import ConversationMemory
+from src.core.code_generator import CodeGenerator
 from src.logging_config import get_logger
 
 logger = get_logger("bk25_core")
@@ -35,6 +36,7 @@ class BK25Core:
             max_conversations=self.config.get('max_conversations', 100),
             max_messages_per_conversation=self.config.get('max_messages_per_conversation', 50)
         )
+        self.code_generator = CodeGenerator()
         
         # LLM configuration
         self.ollama_url = self.config.get('ollama_url', 'http://localhost:11434')
@@ -263,3 +265,54 @@ class BK25Core:
     def get_all_conversations(self) -> List[Dict[str, Any]]:
         """Get all conversation summaries"""
         return self.memory.get_all_conversation_summaries()
+    
+    # Code Generation Methods
+    async def generate_script(self, description: str, platform: str = 'auto', options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Generate a script using the code generator"""
+        try:
+            from src.core.code_generator import GenerationRequest
+            
+            request = GenerationRequest(
+                description=description,
+                platform=platform,
+                options=options
+            )
+            
+            result = await self.code_generator.generate_script(request)
+            
+            return {
+                'success': result.success,
+                'script': result.script,
+                'filename': result.filename,
+                'documentation': result.documentation,
+                'validation': {
+                    'is_valid': result.validation.is_valid if result.validation else False,
+                    'issues': result.validation.issues if result.validation else [],
+                    'suggestions': result.validation.suggestions if result.validation else []
+                } if result.validation else None,
+                'error': result.error,
+                'metadata': result.metadata
+            }
+            
+        except Exception as error:
+            self.logger.error(f"Script generation failed: {error}")
+            return {
+                'success': False,
+                'error': f"Script generation error: {str(error)}"
+            }
+    
+    def get_code_generation_info(self) -> Dict[str, Any]:
+        """Get information about code generation capabilities"""
+        return {
+            'supported_platforms': self.code_generator.get_supported_platforms(),
+            'statistics': self.code_generator.get_generation_statistics(),
+            'automation_patterns': list(self.code_generator.automation_patterns.keys())
+        }
+    
+    def get_platform_info(self, platform: str) -> Optional[Dict[str, Any]]:
+        """Get detailed information about a specific platform"""
+        return self.code_generator.get_platform_info(platform)
+    
+    def get_automation_suggestions(self, description: str) -> List[Dict[str, Any]]:
+        """Get automation suggestions based on description"""
+        return self.code_generator.get_automation_suggestions(description)

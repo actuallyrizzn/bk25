@@ -65,10 +65,11 @@ async def startup_event():
         
         await bk25.initialize()
         
-        print("🚀 BK25 Python Edition starting up...")
-        print("📝 Migration Status: Phase 2 - Persona System & Memory")
-        print(f"🎭 Personas loaded: {len(bk25.persona_manager.get_all_personas())}")
-        print(f"📺 Channels available: {len(bk25.channel_manager.get_all_channels())}")
+                    print("🚀 BK25 Python Edition starting up...")
+            print("📝 Migration Status: Phase 3 - Code Generation System")
+            print(f"🎭 Personas loaded: {len(bk25.persona_manager.get_all_personas())}")
+            print(f"📺 Channels available: {len(bk25.channel_manager.get_all_channels())}")
+            print(f"⚙️ Code generators: {len(bk25.code_generator.get_supported_platforms())} platforms")
         
     except Exception as error:
         print(f"❌ Failed to initialize BK25: {error}")
@@ -82,16 +83,17 @@ async def health_check():
     
     status = bk25.get_system_status()
     
-    return {
-        "status": "healthy",
-        "version": "1.0.0",
-        "tagline": "Agents for whomst? For humans who need automation that works.",
-        "migration_status": "Phase 2 - Persona System & Memory",
-        "ollama": "connected" if status["ollama_connected"] else "disconnected",
-        "personas_loaded": status["personas_loaded"],
-        "channels_available": status["channels_available"],
-        "conversations_active": status["conversations_active"]
-    }
+            return {
+            "status": "healthy",
+            "version": "1.0.0",
+            "tagline": "Agents for whomst? For humans who need automation that works.",
+            "migration_status": "Phase 3 - Code Generation System",
+            "ollama": "connected" if status["ollama_connected"] else "disconnected",
+            "personas_loaded": status["personas_loaded"],
+            "channels_available": status["channels_available"],
+            "conversations_active": status["conversations_active"],
+            "code_generation": "available"
+        }
 
 @app.get("/api/personas")
 async def get_personas(channel: str = "web"):
@@ -353,6 +355,72 @@ async def get_memory_info():
         return bk25.get_memory_info()
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error getting memory info: {str(error)}")
+
+# Code Generation Endpoints
+@app.post("/api/generate/script")
+async def generate_script(request: Request):
+    """Generate a script based on description and platform"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        body = await request.json()
+        description = body.get('description')
+        platform = body.get('platform', 'auto')
+        options = body.get('options')
+        
+        if not description:
+            raise HTTPException(status_code=400, detail="Description is required")
+        
+        result = await bk25.generate_script(description, platform, options)
+        return result
+        
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error generating script: {str(error)}")
+
+@app.get("/api/generate/platforms")
+async def get_supported_platforms():
+    """Get supported code generation platforms"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        return bk25.get_code_generation_info()
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error getting platform info: {str(error)}")
+
+@app.get("/api/generate/platform/{platform}")
+async def get_platform_info(platform: str):
+    """Get detailed information about a specific platform"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        info = bk25.get_platform_info(platform)
+        if not info:
+            raise HTTPException(status_code=404, detail=f"Platform {platform} not found")
+        
+        return info
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error getting platform info: {str(error)}")
+
+@app.post("/api/generate/suggestions")
+async def get_automation_suggestions(request: Request):
+    """Get automation suggestions based on description"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        body = await request.json()
+        description = body.get('description')
+        if not description:
+            raise HTTPException(status_code=400, detail="Description is required")
+        
+        suggestions = bk25.get_automation_suggestions(description)
+        return {"suggestions": suggestions}
+        
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error getting suggestions: {str(error)}")
 
 @app.exception_handler(404)
 async def not_found_handler(request, exc):
