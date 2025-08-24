@@ -10,16 +10,6 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-# Import config after adding src to path
-try:
-    from config import config
-except ImportError:
-    # Fallback for when running as module
-    import os
-    import sys
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from config import config
-
 def setup_logging(
     log_level: Optional[str] = None,
     log_file: Optional[Path] = None
@@ -35,9 +25,9 @@ def setup_logging(
         Configured logger instance
     """
     
-    # Get log level from config or parameter
+    # Get log level from parameter or default to INFO
     if log_level is None:
-        log_level = "DEBUG" if config.debug else "INFO"
+        log_level = "INFO"
     
     # Create logger
     logger = logging.getLogger("bk25")
@@ -60,7 +50,8 @@ def setup_logging(
     
     # File handler (if log file specified)
     if log_file is None:
-        log_file = config.data_path / "logs" / "bk25.log"
+        # Default to current directory logs
+        log_file = Path("logs") / "bk25.log"
     
     # Ensure log directory exists
     log_file.parent.mkdir(parents=True, exist_ok=True)
