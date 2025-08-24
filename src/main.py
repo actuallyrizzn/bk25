@@ -76,6 +76,8 @@ async def startup_event():
         print(f"[LLM] LLM providers: {len(bk25.llm_manager.get_available_providers())} configured")
         print(f"[EXEC] Script execution: available with monitoring")
         
+    except HTTPException:
+        raise
     except Exception as error:
         print(f"[ERROR] Failed to initialize BK25: {error}")
         raise
@@ -132,6 +134,8 @@ async def get_personas(channel: str = "web"):
             "current_persona": bk25.persona_manager.get_current_persona().id if bk25.persona_manager.get_current_persona() else None,
             "total_count": len(personas)
         }
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error loading personas: {str(error)}")
 
@@ -160,6 +164,8 @@ async def get_current_persona():
             "examples": current_persona.examples,
             "channels": current_persona.channels
         }
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error getting current persona: {str(error)}")
 
@@ -287,6 +293,8 @@ async def get_channels():
             "current_channel": bk25.channel_manager.current_channel,
             "total_count": len(channels)
         }
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error loading channels: {str(error)}")
 
@@ -315,6 +323,8 @@ async def get_current_channel():
             "artifact_types": current_channel.artifact_types,
             "metadata": current_channel.metadata
         }
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error getting current channel: {str(error)}")
 
@@ -432,6 +442,8 @@ async def get_conversations():
             "conversations": conversations,
             "total_count": len(conversations)
         }
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error loading conversations: {str(error)}")
 
@@ -448,6 +460,8 @@ async def get_conversation(conversation_id: str, limit: Optional[int] = None):
             "messages": history,
             "total_messages": len(history)
         }
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error loading conversation: {str(error)}")
 
@@ -459,6 +473,8 @@ async def get_system_status():
     
     try:
         return bk25.get_system_status()
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error getting system status: {str(error)}")
 
@@ -470,6 +486,8 @@ async def get_memory_info():
     
     try:
         return bk25.get_memory_info()
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error getting memory info: {str(error)}")
 
@@ -492,6 +510,8 @@ async def generate_script(request: Request):
         result = await bk25.generate_script(description, platform, options)
         return result
         
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error generating script: {str(error)}")
 
@@ -503,6 +523,8 @@ async def get_supported_platforms():
     
     try:
         return bk25.get_code_generation_info()
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error getting platform info: {str(error)}")
 
@@ -518,6 +540,8 @@ async def get_platform_info(platform: str):
             raise HTTPException(status_code=404, detail=f"Platform {platform} not found")
         
         return info
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error getting platform info: {str(error)}")
 
@@ -536,6 +560,8 @@ async def get_automation_suggestions(request: Request):
         suggestions = bk25.get_automation_suggestions(description)
         return {"suggestions": suggestions}
         
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error getting suggestions: {str(error)}")
 
@@ -564,6 +590,8 @@ async def get_llm_provider_info(provider_name: str):
             raise HTTPException(status_code=404, detail=f"Provider {provider_name} not found")
         
         return info
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error getting provider info: {str(error)}")
 
@@ -584,6 +612,8 @@ async def test_llm_generation(request: Request):
         result = await bk25.test_llm_generation(prompt, provider)
         return result
         
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error testing LLM: {str(error)}")
 
@@ -606,6 +636,8 @@ async def improve_script(request: Request):
         result = await bk25.improve_script(script, feedback, platform, options)
         return result
         
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error improving script: {str(error)}")
 
@@ -627,6 +659,8 @@ async def validate_script(request: Request):
         result = await bk25.validate_script(script, platform, options)
         return result
         
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error validating script: {str(error)}")
 
@@ -661,6 +695,8 @@ async def execute_script(request: Request):
         )
         return result
         
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error executing script: {str(error)}")
 
@@ -694,6 +730,8 @@ async def submit_execution_task(request: Request):
         )
         return result
         
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error submitting task: {str(error)}")
 
@@ -706,6 +744,8 @@ async def get_task_status(task_id: str):
     try:
         result = await bk25.get_task_status(task_id)
         return result
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error getting task status: {str(error)}")
 
@@ -718,6 +758,8 @@ async def cancel_execution_task(task_id: str):
     try:
         result = await bk25.cancel_execution_task(task_id)
         return result
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error cancelling task: {str(error)}")
 
@@ -740,6 +782,8 @@ async def get_execution_history(
             tag_filter=tag
         )
         return result
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error getting execution history: {str(error)}")
 
@@ -752,6 +796,8 @@ async def get_execution_statistics():
     try:
         result = await bk25.get_system_statistics()
         return result
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error getting statistics: {str(error)}")
 
@@ -786,32 +832,14 @@ async def get_running_tasks():
             'total_count': len(task_list)
         }
         
+    except HTTPException:
+        raise
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error getting running tasks: {str(error)}")
 
-@app.exception_handler(404)
-async def not_found_handler(request, exc):
-    """Handle 404 errors gracefully"""
-    return JSONResponse(
-        status_code=404,
-        content={
-            "error": "Not found",
-            "message": "The requested resource was not found",
-            "migration_status": "Phase 5 - Script Execution & Monitoring"
-        }
-    )
+# Custom 404 handler removed - let FastAPI handle 404 errors naturally
 
-@app.exception_handler(500)
-async def internal_error_handler(request, exc):
-    """Handle 500 errors gracefully"""
-    return JSONResponse(
-        status_code=500,
-        content={
-            "error": "Internal server error",
-            "message": "BK25 encountered an issue processing your request",
-            "migration_status": "Phase 5 - Script Execution & Monitoring"
-        }
-    )
+# Custom 500 handler removed - let FastAPI handle 500 errors naturally
 
 if __name__ == "__main__":
     import argparse
