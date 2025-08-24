@@ -12,3 +12,6 @@ python-dotenv
 # Development and testing
 pytest
 pytest-asyncio
+
+# System monitoring and process management
+psutil

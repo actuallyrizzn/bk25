@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 # Import BK25 core components
 from src.core.bk25 import BK25Core
@@ -65,12 +65,16 @@ async def startup_event():
         
         await bk25.initialize()
         
-                    print("🚀 BK25 Python Edition starting up...")
-            print("📝 Migration Status: Phase 4 - LLM Integration & Advanced Features")
-            print(f"🎭 Personas loaded: {len(bk25.persona_manager.get_all_personas())}")
-            print(f"📺 Channels available: {len(bk25.channel_manager.get_all_channels())}")
-            print(f"⚙️ Code generators: {len(bk25.code_generator.get_supported_platforms())} platforms")
-            print(f"🤖 LLM providers: {len(bk25.llm_manager.get_available_providers())} configured")
+        # Start execution monitoring system
+        await bk25.start_execution_monitoring()
+        
+        print("🚀 BK25 Python Edition starting up...")
+        print("📝 Migration Status: Phase 5 - Script Execution & Monitoring")
+        print(f"🎭 Personas loaded: {len(bk25.persona_manager.get_all_personas())}")
+        print(f"📺 Channels available: {len(bk25.channel_manager.get_all_channels())}")
+        print(f"⚙️ Code generators: {len(bk25.code_generator.get_supported_platforms())} platforms")
+        print(f"🤖 LLM providers: {len(bk25.llm_manager.get_available_providers())} configured")
+        print(f"🚀 Script execution: available with monitoring")
         
     except Exception as error:
         print(f"❌ Failed to initialize BK25: {error}")
@@ -88,13 +92,14 @@ async def health_check():
             "status": "healthy",
             "version": "1.0.0",
             "tagline": "Agents for whomst? For humans who need automation that works.",
-            "migration_status": "Phase 4 - LLM Integration & Advanced Features",
+            "migration_status": "Phase 5 - Script Execution & Monitoring",
             "ollama": "connected" if status["ollama_connected"] else "disconnected",
             "personas_loaded": status["personas_loaded"],
             "channels_available": status["channels_available"],
             "conversations_active": status["conversations_active"],
             "code_generation": "available",
-            "llm_integration": "available"
+            "llm_integration": "available",
+            "script_execution": "available"
         }
 
 @app.get("/api/personas")
@@ -515,6 +520,165 @@ async def validate_script(request: Request):
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error validating script: {str(error)}")
 
+# Script Execution Endpoints
+@app.post("/api/execute/script")
+async def execute_script(request: Request):
+    """Execute a script directly"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        body = await request.json()
+        script = body.get('script')
+        platform = body.get('platform')
+        filename = body.get('filename')
+        working_directory = body.get('working_directory')
+        timeout = body.get('timeout', 300)
+        policy = body.get('policy', 'safe')
+        environment = body.get('environment')
+        
+        if not script or not platform:
+            raise HTTPException(status_code=400, detail="Script and platform are required")
+        
+        result = await bk25.execute_script(
+            script=script,
+            platform=platform,
+            filename=filename,
+            working_directory=working_directory,
+            timeout=timeout,
+            policy=policy,
+            environment=environment
+        )
+        return result
+        
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error executing script: {str(error)}")
+
+@app.post("/api/execute/task")
+async def submit_execution_task(request: Request):
+    """Submit a script execution task"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        body = await request.json()
+        name = body.get('name')
+        description = body.get('description')
+        script = body.get('script')
+        platform = body.get('platform')
+        priority = body.get('priority', 'normal')
+        tags = body.get('tags')
+        metadata = body.get('metadata')
+        
+        if not name or not description or not script or not platform:
+            raise HTTPException(status_code=400, detail="Name, description, script, and platform are required")
+        
+        result = await bk25.submit_execution_task(
+            name=name,
+            description=description,
+            script=script,
+            platform=platform,
+            priority=priority,
+            tags=tags,
+            metadata=metadata
+        )
+        return result
+        
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error submitting task: {str(error)}")
+
+@app.get("/api/execute/task/{task_id}")
+async def get_task_status(task_id: str):
+    """Get the status of an execution task"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        result = await bk25.get_task_status(task_id)
+        return result
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error getting task status: {str(error)}")
+
+@app.delete("/api/execute/task/{task_id}")
+async def cancel_execution_task(task_id: str):
+    """Cancel an execution task"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        result = await bk25.cancel_execution_task(task_id)
+        return result
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error cancelling task: {str(error)}")
+
+@app.get("/api/execute/history")
+async def get_execution_history(
+    limit: int = 100,
+    status: Optional[str] = None,
+    platform: Optional[str] = None,
+    tag: Optional[str] = None
+):
+    """Get execution history with optional filters"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        result = await bk25.get_execution_history(
+            limit=limit,
+            status_filter=status,
+            platform_filter=platform,
+            tag_filter=tag
+        )
+        return result
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error getting execution history: {str(error)}")
+
+@app.get("/api/execute/statistics")
+async def get_execution_statistics():
+    """Get system execution statistics"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        result = await bk25.get_system_statistics()
+        return result
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error getting statistics: {str(error)}")
+
+@app.get("/api/execute/running")
+async def get_running_tasks():
+    """Get all currently running tasks"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        tasks = await bk25.execution_monitor.get_running_tasks()
+        
+        # Convert to serializable format
+        task_list = []
+        for task in tasks:
+            task_list.append({
+                'id': task.id,
+                'name': task.name,
+                'description': task.description,
+                'status': task.status.value,
+                'priority': task.priority.value,
+                'created_at': task.created_at.isoformat() if task.created_at else None,
+                'started_at': task.started_at.isoformat() if task.started_at else None,
+                'execution_time': task.execution_time,
+                'tags': task.tags,
+                'metadata': task.metadata
+            })
+        
+        return {
+            'success': True,
+            'running_tasks': task_list,
+            'total_count': len(task_list)
+        }
+        
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error getting running tasks: {str(error)}")
+
 @app.exception_handler(404)
 async def not_found_handler(request, exc):
     """Handle 404 errors gracefully"""
@@ -523,7 +687,7 @@ async def not_found_handler(request, exc):
         content={
             "error": "Not found",
             "message": "The requested resource was not found",
-            "migration_status": "Phase 4 - LLM Integration & Advanced Features"
+            "migration_status": "Phase 5 - Script Execution & Monitoring"
         }
     )
 
@@ -535,7 +699,7 @@ async def internal_error_handler(request, exc):
         content={
             "error": "Internal server error",
             "message": "BK25 encountered an issue processing your request",
-            "migration_status": "Phase 4 - LLM Integration & Advanced Features"
+            "migration_status": "Phase 5 - Script Execution & Monitoring"
         }
     )
 

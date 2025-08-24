@@ -19,6 +19,8 @@ from src.core.memory import ConversationMemory
 from src.core.code_generator import CodeGenerator
 from src.core.llm_integration import LLMManager
 from src.core.prompt_engineering import PromptEngineer
+from src.core.script_executor import ScriptExecutor, ExecutionRequest, ExecutionPolicy
+from src.core.execution_monitor import ExecutionMonitor, TaskPriority, TaskStatus
 from src.logging_config import get_logger
 
 logger = get_logger("bk25_core")
@@ -43,6 +45,10 @@ class BK25Core:
         # LLM system
         self.llm_manager = LLMManager(self.config)
         self.prompt_engineer = PromptEngineer()
+        
+        # Script execution system
+        self.script_executor = ScriptExecutor(self.config)
+        self.execution_monitor = ExecutionMonitor(self.config)
         
         # LLM configuration
         self.ollama_url = self.config.get('ollama_url', 'http://localhost:11434')
@@ -512,3 +518,262 @@ class BK25Core:
                 'success': False,
                 'error': f"Script validation error: {str(error)}"
             }
+    
+    # Script Execution Methods
+    async def execute_script(
+        self,
+        script: str,
+        platform: str,
+        filename: Optional[str] = None,
+        working_directory: Optional[str] = None,
+        timeout: int = 300,
+        policy: str = 'safe',
+        environment: Optional[Dict[str, str]] = None
+    ) -> Dict[str, Any]:
+        """Execute a script using the script executor"""
+        try:
+            # Convert policy string to enum
+            execution_policy = ExecutionPolicy.SAFE
+            if policy == 'restricted':
+                execution_policy = ExecutionPolicy.RESTRICTED
+            elif policy == 'standard':
+                execution_policy = ExecutionPolicy.STANDARD
+            elif policy == 'elevated':
+                execution_policy = ExecutionPolicy.ELEVATED
+            
+            # Create execution request
+            request = ExecutionRequest(
+                script=script,
+                platform=platform,
+                filename=filename,
+                working_directory=working_directory,
+                timeout=timeout,
+                policy=execution_policy,
+                environment=environment
+            )
+            
+            # Execute the script
+            result = await self.script_executor.execute_script(request)
+            
+            return {
+                'success': result.success,
+                'status': result.status.value,
+                'output': result.output,
+                'error': result.error,
+                'exit_code': result.exit_code,
+                'execution_time': result.execution_time,
+                'memory_usage': result.memory_usage,
+                'cpu_usage': result.cpu_usage,
+                'metadata': result.metadata
+            }
+            
+        except Exception as error:
+            self.logger.error(f"Script execution failed: {error}")
+            return {
+                'success': False,
+                'error': f"Execution error: {str(error)}"
+            }
+    
+    async def submit_execution_task(
+        self,
+        name: str,
+        description: str,
+        script: str,
+        platform: str,
+        priority: str = 'normal',
+        tags: Optional[List[str]] = None,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """Submit a script execution task to the monitor"""
+        try:
+            # Convert priority string to enum
+            task_priority = TaskPriority.NORMAL
+            if priority == 'low':
+                task_priority = TaskPriority.LOW
+            elif priority == 'high':
+                task_priority = TaskPriority.HIGH
+            elif priority == 'critical':
+                task_priority = TaskPriority.CRITICAL
+            
+            # Submit the task
+            task_id = await self.execution_monitor.submit_task(
+                name=name,
+                description=description,
+                script=script,
+                platform=platform,
+                priority=task_priority,
+                tags=tags,
+                metadata=metadata
+            )
+            
+            return {
+                'success': True,
+                'task_id': task_id,
+                'message': f"Task '{name}' submitted successfully"
+            }
+            
+        except Exception as error:
+            self.logger.error(f"Task submission failed: {error}")
+            return {
+                'success': False,
+                'error': f"Task submission error: {str(error)}"
+            }
+    
+    async def get_task_status(self, task_id: str) -> Dict[str, Any]:
+        """Get the status of an execution task"""
+        try:
+            task = await self.execution_monitor.get_task_status(task_id)
+            if not task:
+                return {
+                    'success': False,
+                    'error': f"Task not found: {task_id}"
+                }
+            
+            return {
+                'success': True,
+                'task': {
+                    'id': task.id,
+                    'name': task.name,
+                    'description': task.description,
+                    'status': task.status.value,
+                    'priority': task.priority.value,
+                    'created_at': task.created_at.isoformat() if task.created_at else None,
+                    'started_at': task.started_at.isoformat() if task.started_at else None,
+                    'completed_at': task.completed_at.isoformat() if task.completed_at else None,
+                    'execution_time': task.execution_time,
+                    'exit_code': task.exit_code,
+                    'output': task.output,
+                    'error': task.error,
+                    'tags': task.tags,
+                    'metadata': task.metadata
+                }
+            }
+            
+        except Exception as error:
+            self.logger.error(f"Failed to get task status: {error}")
+            return {
+                'success': False,
+                'error': f"Status retrieval error: {str(error)}"
+            }
+    
+    async def cancel_execution_task(self, task_id: str) -> Dict[str, Any]:
+        """Cancel a running or queued execution task"""
+        try:
+            success = await self.execution_monitor.cancel_task(task_id)
+            
+            return {
+                'success': success,
+                'message': f"Task {task_id} {'cancelled' if success else 'could not be cancelled'}"
+            }
+            
+        except Exception as error:
+            self.logger.error(f"Failed to cancel task: {error}")
+            return {
+                'success': False,
+                'error': f"Task cancellation error: {str(error)}"
+            }
+    
+    async def get_execution_history(
+        self,
+        limit: int = 100,
+        status_filter: Optional[str] = None,
+        platform_filter: Optional[str] = None,
+        tag_filter: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Get execution history with optional filters"""
+        try:
+            # Convert status filter to enum if provided
+            status_enum = None
+            if status_filter:
+                try:
+                    status_enum = TaskStatus(status_filter)
+                except ValueError:
+                    return {
+                        'success': False,
+                        'error': f"Invalid status filter: {status_filter}"
+                    }
+            
+            # Get history
+            tasks = await self.execution_monitor.get_execution_history(
+                limit=limit,
+                status_filter=status_enum,
+                platform_filter=platform_filter,
+                tag_filter=tag_filter
+            )
+            
+            # Convert to serializable format
+            task_list = []
+            for task in tasks:
+                task_list.append({
+                    'id': task.id,
+                    'name': task.name,
+                    'description': task.description,
+                    'status': task.status.value,
+                    'priority': task.priority.value,
+                    'created_at': task.created_at.isoformat() if task.created_at else None,
+                    'started_at': task.started_at.isoformat() if task.started_at else None,
+                    'completed_at': task.completed_at.isoformat() if task.completed_at else None,
+                    'execution_time': task.execution_time,
+                    'exit_code': task.exit_code,
+                    'output': task.output,
+                    'error': task.error,
+                    'tags': task.tags,
+                    'metadata': task.metadata
+                })
+            
+            return {
+                'success': True,
+                'tasks': task_list,
+                'total_count': len(task_list)
+            }
+            
+        except Exception as error:
+            self.logger.error(f"Failed to get execution history: {error}")
+            return {
+                'success': False,
+                'error': f"History retrieval error: {str(error)}"
+            }
+    
+    async def get_system_statistics(self) -> Dict[str, Any]:
+        """Get system execution statistics"""
+        try:
+            # Get execution monitor statistics
+            exec_stats = await self.execution_monitor.get_system_statistics()
+            
+            # Get script executor system resources
+            system_resources = self.script_executor.get_system_resources()
+            
+            # Get LLM system status
+            llm_status = await self.get_llm_status()
+            
+            return {
+                'success': True,
+                'execution_statistics': exec_stats,
+                'system_resources': system_resources,
+                'llm_status': llm_status
+            }
+            
+        except Exception as error:
+            self.logger.error(f"Failed to get system statistics: {error}")
+            return {
+                'success': False,
+                'error': f"Statistics retrieval error: {str(error)}"
+            }
+    
+    async def start_execution_monitoring(self):
+        """Start the execution monitoring system"""
+        try:
+            await self.execution_monitor.start_monitoring()
+            self.logger.info("✅ Execution monitoring system started")
+        except Exception as error:
+            self.logger.error(f"❌ Failed to start execution monitoring: {error}")
+            raise
+    
+    async def shutdown_execution_monitoring(self):
+        """Shutdown the execution monitoring system"""
+        try:
+            await self.execution_monitor.shutdown()
+            self.logger.info("✅ Execution monitoring system shutdown complete")
+        except Exception as error:
+            self.logger.error(f"❌ Failed to shutdown execution monitoring: {error}")
+            raise

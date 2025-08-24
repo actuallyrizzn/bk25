@@ -62,6 +62,14 @@ BK25 embodies an **anti-enterprise** philosophy:
 - **Documentation Included**: Automatic documentation for generated scripts
 - **Copy & Export**: Easy script copying and sharing
 
+### 🚀 Script Execution & Monitoring
+- **Safe Script Execution**: Multiple execution policies (Safe, Restricted, Standard, Elevated)
+- **Real-time Monitoring**: Live task tracking with performance metrics
+- **Resource Management**: CPU, memory, and I/O monitoring
+- **Task Queue System**: Priority-based execution with concurrent limits
+- **Execution History**: Comprehensive logging and analytics
+- **Safety Validation**: Automatic detection of dangerous commands
+
 ### 🎨 User Interface
 - **Professional Design**: Clean, responsive web interface
 - **Three-Column Layout**: Persona | Channel | Platform selectors
@@ -80,7 +88,12 @@ bk25/
 │   │   ├── bk25.py              # Main application controller
 │   │   ├── persona_manager.py   # Persona system management
 │   │   ├── channel_manager.py   # Channel simulation system
-│   │   └── memory.py           # Conversation memory system
+│   │   ├── memory.py           # Conversation memory system
+│   │   ├── code_generator.py   # Unified code generation orchestrator
+│   │   ├── llm_integration.py  # Multi-provider LLM management
+│   │   ├── prompt_engineering.py # Advanced prompt engineering
+│   │   ├── script_executor.py  # Safe script execution engine
+│   │   └── execution_monitor.py # Task monitoring and management
 │   ├── generators/
 │   │   ├── powershell.py       # PowerShell script generation
 │   │   ├── applescript.py      # AppleScript generation
@@ -96,8 +109,9 @@ bk25/
 1. **User Interaction**: User selects persona, channel, and platform
 2. **Persona Processing**: Selected persona processes user input with context
 3. **Channel Simulation**: Channel-specific formatting and capabilities
-4. **Code Generation**: Platform-specific script generation
-5. **Response Delivery**: Formatted response with generated artifacts
+4. **Code Generation**: Platform-specific script generation with LLM integration
+5. **Script Execution**: Safe execution with monitoring and safety policies
+6. **Response Delivery**: Formatted response with generated artifacts and execution results
 
 ## 🚀 Quick Start
 
@@ -146,7 +160,7 @@ docker run -p 8000:8000 bk25
 
 This is the **Python Edition** of BK25, migrated from the original Node.js implementation. The migration maintains 100% functional parity while leveraging Python's strengths.
 
-**Migration Progress**: Phase 1 - Foundation & Core Infrastructure
+**Migration Progress**: Phase 5 - Script Execution & Monitoring ✅ **COMPLETE**
 
 **Original Implementation**: Available in the `old/` directory for reference
 
