@@ -72,7 +72,7 @@ class CodeGenerator:
         
         self.logger.info("🚀 Code Generator initialized with all platforms")
     
-    async def generate_script(self, request: GenerationRequest) -> GenerationResult:
+    async def generate_script(self, request: GenerationRequest, llm_manager: Optional[Any] = None, prompt_engineer: Optional[Any] = None) -> GenerationResult:
         """Generate a script based on the request"""
         try:
             self.logger.info(f"📝 Generating {request.platform} script for: {request.description[:50]}...")
@@ -88,11 +88,20 @@ class CodeGenerator:
                     error=f"Unsupported platform: {platform}"
                 )
             
-            # Build generation prompt
-            prompt = generator.build_generation_prompt(request.description, request.options)
+            # Try LLM generation first if available
+            if llm_manager and prompt_engineer:
+                try:
+                    result = await self._generate_with_llm(generator, request, llm_manager, prompt_engineer)
+                    if result.success:
+                        self.logger.info(f"✅ LLM script generation completed for {platform}")
+                        # Validate the generated script
+                        validation = generator.validate_script(result.script)
+                        result.validation = validation
+                        return result
+                except Exception as error:
+                    self.logger.warning(f"LLM generation failed, falling back to template: {error}")
             
-            # TODO: Integrate with LLM for actual script generation
-            # For now, return a template-based result
+            # Fall back to template-based generation
             result = await self._generate_from_template(generator, request)
             
             # Validate the generated script
@@ -105,7 +114,7 @@ class CodeGenerator:
                     result.success = False
                     result.error = f"Script validation failed: {', '.join(validation.issues)}"
             
-            self.logger.info(f"✅ Script generation completed for {platform}")
+            self.logger.info(f"✅ Template-based script generation completed for {platform}")
             return result
             
         except Exception as error:
@@ -199,6 +208,81 @@ class CodeGenerator:
                 success=False,
                 error=f"Template generation error: {str(error)}"
             )
+    
+    async def _generate_with_llm(self, generator: Any, request: GenerationRequest, llm_manager: Any, prompt_engineer: Any) -> GenerationResult:
+        """Generate script using LLM with advanced prompt engineering"""
+        try:
+            # Create prompt context
+            context = self._create_prompt_context(request)
+            
+            # Create structured prompt
+            prompt = prompt_engineer.create_script_generation_prompt(
+                description=request.description,
+                platform=generator.platform,
+                context=context,
+                options=request.options
+            )
+            
+            # Build the full prompt for LLM
+            full_prompt = f"{prompt.system_message}\n\n{prompt.user_prompt}\n\n{prompt.output_format}"
+            
+            # Generate with LLM
+            from ..core.llm_integration import LLMRequest
+            
+            llm_request = LLMRequest(
+                prompt=full_prompt,
+                model=llm_manager.config.get('model', 'default'),
+                temperature=0.1,  # Low temperature for consistent code generation
+                max_tokens=request.options.get('max_tokens', 2048) if request.options else 2048,
+                system_message=prompt.system_message
+            )
+            
+            self.logger.info(f"Generating {generator.platform} script with LLM...")
+            llm_response = await llm_manager.generate(llm_request)
+            
+            if not llm_response.success:
+                self.logger.warning(f"LLM generation failed, falling back to template: {llm_response.error}")
+                return await self._generate_from_template(generator, request)
+            
+            # Parse the LLM-generated script
+            script = llm_response.content
+            parsed = generator.parse_generated_script(script)
+            
+            return GenerationResult(
+                success=True,
+                script=parsed['script'],
+                filename=parsed['filename'],
+                documentation=parsed['documentation'],
+                metadata={
+                    'generation_method': 'llm',
+                    'provider': llm_response.metadata.get('provider', 'unknown'),
+                    'model': llm_response.metadata.get('model', 'unknown'),
+                    'usage': llm_response.usage,
+                    'generator': generator.platform
+                }
+            )
+            
+        except Exception as error:
+            self.logger.error(f"LLM generation failed: {error}")
+            # Fall back to template generation
+            return await self._generate_from_template(generator, request)
+    
+    def _create_prompt_context(self, request: GenerationRequest) -> Any:
+        """Create prompt context from generation request"""
+        from ..core.prompt_engineering import PromptContext
+        
+        # This would typically get real data from the BK25 system
+        # For now, create a basic context
+        return PromptContext(
+            persona_id=request.persona_id or 'default',
+            persona_name='Default Persona',
+            persona_description='General automation expert',
+            persona_capabilities=['script_generation', 'automation'],
+            channel_id=request.channel or 'web',
+            channel_name='Web Interface',
+            conversation_history=[],
+            user_preferences=request.options.get('preferences') if request.options else None
+        )
     
     def _calculate_template_match_score(self, description: str, template_desc: str) -> float:
         """Calculate how well a template matches the description"""

@@ -66,10 +66,11 @@ async def startup_event():
         await bk25.initialize()
         
                     print("🚀 BK25 Python Edition starting up...")
-            print("📝 Migration Status: Phase 3 - Code Generation System")
+            print("📝 Migration Status: Phase 4 - LLM Integration & Advanced Features")
             print(f"🎭 Personas loaded: {len(bk25.persona_manager.get_all_personas())}")
             print(f"📺 Channels available: {len(bk25.channel_manager.get_all_channels())}")
             print(f"⚙️ Code generators: {len(bk25.code_generator.get_supported_platforms())} platforms")
+            print(f"🤖 LLM providers: {len(bk25.llm_manager.get_available_providers())} configured")
         
     except Exception as error:
         print(f"❌ Failed to initialize BK25: {error}")
@@ -87,12 +88,13 @@ async def health_check():
             "status": "healthy",
             "version": "1.0.0",
             "tagline": "Agents for whomst? For humans who need automation that works.",
-            "migration_status": "Phase 3 - Code Generation System",
+            "migration_status": "Phase 4 - LLM Integration & Advanced Features",
             "ollama": "connected" if status["ollama_connected"] else "disconnected",
             "personas_loaded": status["personas_loaded"],
             "channels_available": status["channels_available"],
             "conversations_active": status["conversations_active"],
-            "code_generation": "available"
+            "code_generation": "available",
+            "llm_integration": "available"
         }
 
 @app.get("/api/personas")
@@ -422,6 +424,97 @@ async def get_automation_suggestions(request: Request):
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error getting suggestions: {str(error)}")
 
+# Advanced LLM Features Endpoints
+@app.get("/api/llm/status")
+async def get_llm_status():
+    """Get LLM system status and provider information"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        status = await bk25.get_llm_status()
+        return status
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error getting LLM status: {str(error)}")
+
+@app.get("/api/llm/providers/{provider_name}")
+async def get_llm_provider_info(provider_name: str):
+    """Get detailed information about a specific LLM provider"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        info = bk25.get_llm_provider_info(provider_name)
+        if not info:
+            raise HTTPException(status_code=404, detail=f"Provider {provider_name} not found")
+        
+        return info
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error getting provider info: {str(error)}")
+
+@app.post("/api/llm/test")
+async def test_llm_generation(request: Request):
+    """Test LLM generation with a simple prompt"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        body = await request.json()
+        prompt = body.get('prompt')
+        provider = body.get('provider')
+        
+        if not prompt:
+            raise HTTPException(status_code=400, detail="Prompt is required")
+        
+        result = await bk25.test_llm_generation(prompt, provider)
+        return result
+        
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error testing LLM: {str(error)}")
+
+@app.post("/api/scripts/improve")
+async def improve_script(request: Request):
+    """Improve an existing script based on feedback"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        body = await request.json()
+        script = body.get('script')
+        feedback = body.get('feedback')
+        platform = body.get('platform')
+        options = body.get('options')
+        
+        if not script or not feedback or not platform:
+            raise HTTPException(status_code=400, detail="Script, feedback, and platform are required")
+        
+        result = await bk25.improve_script(script, feedback, platform, options)
+        return result
+        
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error improving script: {str(error)}")
+
+@app.post("/api/scripts/validate")
+async def validate_script(request: Request):
+    """Validate and analyze a script for quality and improvements"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        body = await request.json()
+        script = body.get('script')
+        platform = body.get('platform')
+        options = body.get('options')
+        
+        if not script or not platform:
+            raise HTTPException(status_code=400, detail="Script and platform are required")
+        
+        result = await bk25.validate_script(script, platform, options)
+        return result
+        
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error validating script: {str(error)}")
+
 @app.exception_handler(404)
 async def not_found_handler(request, exc):
     """Handle 404 errors gracefully"""
@@ -430,7 +523,7 @@ async def not_found_handler(request, exc):
         content={
             "error": "Not found",
             "message": "The requested resource was not found",
-            "migration_status": "Phase 2 - Persona System & Memory"
+            "migration_status": "Phase 4 - LLM Integration & Advanced Features"
         }
     )
 
@@ -442,7 +535,7 @@ async def internal_error_handler(request, exc):
         content={
             "error": "Internal server error",
             "message": "BK25 encountered an issue processing your request",
-            "migration_status": "Phase 2 - Persona System & Memory"
+            "migration_status": "Phase 4 - LLM Integration & Advanced Features"
         }
     )
 

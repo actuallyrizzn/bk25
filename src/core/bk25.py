@@ -17,6 +17,8 @@ from src.core.persona_manager import PersonaManager
 from src.core.channel_manager import ChannelManager
 from src.core.memory import ConversationMemory
 from src.core.code_generator import CodeGenerator
+from src.core.llm_integration import LLMManager
+from src.core.prompt_engineering import PromptEngineer
 from src.logging_config import get_logger
 
 logger = get_logger("bk25_core")
@@ -37,6 +39,10 @@ class BK25Core:
             max_messages_per_conversation=self.config.get('max_messages_per_conversation', 50)
         )
         self.code_generator = CodeGenerator()
+        
+        # LLM system
+        self.llm_manager = LLMManager(self.config)
+        self.prompt_engineer = PromptEngineer()
         
         # LLM configuration
         self.ollama_url = self.config.get('ollama_url', 'http://localhost:11434')
@@ -278,7 +284,11 @@ class BK25Core:
                 options=options
             )
             
-            result = await self.code_generator.generate_script(request)
+            result = await self.code_generator.generate_script(
+                request, 
+                self.llm_manager, 
+                self.prompt_engineer
+            )
             
             return {
                 'success': result.success,
@@ -316,3 +326,189 @@ class BK25Core:
     def get_automation_suggestions(self, description: str) -> List[Dict[str, Any]]:
         """Get automation suggestions based on description"""
         return self.code_generator.get_automation_suggestions(description)
+    
+    # LLM Management Methods
+    async def get_llm_status(self) -> Dict[str, Any]:
+        """Get LLM system status and provider information"""
+        try:
+            provider_status = await self.llm_manager.test_providers()
+            available_providers = self.llm_manager.get_available_providers()
+            
+            return {
+                'providers_configured': available_providers,
+                'provider_status': provider_status,
+                'total_providers': len(available_providers),
+                'active_providers': sum(1 for status in provider_status.values() if status)
+            }
+        except Exception as error:
+            self.logger.error(f"Error getting LLM status: {error}")
+            return {
+                'error': f"Failed to get LLM status: {str(error)}"
+            }
+    
+    def get_llm_provider_info(self, provider_name: str) -> Optional[Dict[str, Any]]:
+        """Get detailed information about a specific LLM provider"""
+        return self.llm_manager.get_provider_info(provider_name)
+    
+    async def test_llm_generation(self, prompt: str, provider: Optional[str] = None) -> Dict[str, Any]:
+        """Test LLM generation with a simple prompt"""
+        try:
+            from src.core.llm_integration import LLMRequest
+            
+            request = LLMRequest(
+                prompt=prompt,
+                model=self.model,
+                temperature=0.1,
+                max_tokens=100
+            )
+            
+            response = await self.llm_manager.generate(request, preferred_provider=provider)
+            
+            return {
+                'success': response.success,
+                'content': response.content,
+                'error': response.error,
+                'provider': response.metadata.get('provider', 'unknown') if response.metadata else 'unknown',
+                'usage': response.usage
+            }
+            
+        except Exception as error:
+            self.logger.error(f"LLM test generation failed: {error}")
+            return {
+                'success': False,
+                'error': f"Test generation error: {str(error)}"
+            }
+    
+    # Advanced Script Features
+    async def improve_script(self, script: str, feedback: str, platform: str, options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Improve an existing script based on feedback"""
+        try:
+            # Create prompt context
+            from src.core.prompt_engineering import PromptContext
+            
+            context = PromptContext(
+                persona_id=options.get('persona_id', 'default') if options else 'default',
+                persona_name='Script Improvement Expert',
+                persona_description='Specialized in iterative script improvement',
+                persona_capabilities=['script_improvement', 'code_review'],
+                channel_id=options.get('channel', 'web') if options else 'web',
+                channel_name='Web Interface',
+                conversation_history=[],
+                user_preferences=options.get('preferences') if options else None
+            )
+            
+            # Create improvement prompt
+            prompt = self.prompt_engineer.create_iterative_improvement_prompt(
+                original_script=script,
+                feedback=feedback,
+                platform=platform,
+                context=context
+            )
+            
+            # Generate improved script
+            from src.core.llm_integration import LLMRequest
+            
+            llm_request = LLMRequest(
+                prompt=f"{prompt.system_message}\n\n{prompt.user_prompt}\n\n{prompt.output_format}",
+                model=self.model,
+                temperature=0.1,
+                max_tokens=options.get('max_tokens', 2048) if options else 2048
+            )
+            
+            llm_response = await self.llm_manager.generate(llm_request)
+            
+            if not llm_response.success:
+                return {
+                    'success': False,
+                    'error': f"LLM improvement failed: {llm_response.error}"
+                }
+            
+            # Parse the improved script
+            generator = self.code_generator.generators.get(platform)
+            if not generator:
+                return {
+                    'success': False,
+                    'error': f"Unsupported platform: {platform}"
+                }
+            
+            parsed = generator.parse_generated_script(llm_response.content)
+            
+            return {
+                'success': True,
+                'improved_script': parsed['script'],
+                'filename': parsed['filename'],
+                'documentation': parsed['documentation'],
+                'metadata': {
+                    'improvement_method': 'llm',
+                    'provider': llm_response.metadata.get('provider', 'unknown'),
+                    'model': llm_response.metadata.get('model', 'unknown'),
+                    'usage': llm_response.usage
+                }
+            }
+            
+        except Exception as error:
+            self.logger.error(f"Script improvement failed: {error}")
+            return {
+                'success': False,
+                'error': f"Script improvement error: {str(error)}"
+            }
+    
+    async def validate_script(self, script: str, platform: str, options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Validate and analyze a script for quality and improvements"""
+        try:
+            # Create prompt context
+            from src.core.prompt_engineering import PromptContext
+            
+            context = PromptContext(
+                persona_id=options.get('persona_id', 'default') if options else 'default',
+                persona_name='Code Quality Expert',
+                persona_description='Specialized in code review and validation',
+                persona_capabilities=['code_review', 'quality_assessment'],
+                channel_id=options.get('channel', 'web') if options else 'web',
+                channel_name='Web Interface',
+                conversation_history=[],
+                user_preferences=options.get('preferences') if options else None
+            )
+            
+            # Create validation prompt
+            prompt = self.prompt_engineer.create_validation_prompt(
+                script=script,
+                platform=platform,
+                context=context
+            )
+            
+            # Generate validation analysis
+            from src.core.llm_integration import LLMRequest
+            
+            llm_request = LLMRequest(
+                prompt=f"{prompt.system_message}\n\n{prompt.user_prompt}",
+                model=self.model,
+                temperature=0.1,
+                max_tokens=options.get('max_tokens', 1024) if options else 1024
+            )
+            
+            llm_response = await self.llm_manager.generate(llm_request)
+            
+            if not llm_response.success:
+                return {
+                    'success': False,
+                    'error': f"LLM validation failed: {llm_response.error}"
+                }
+            
+            return {
+                'success': True,
+                'validation_analysis': llm_response.content,
+                'metadata': {
+                    'validation_method': 'llm',
+                    'provider': llm_response.metadata.get('provider', 'unknown'),
+                    'model': llm_response.metadata.get('model', 'unknown'),
+                    'usage': llm_response.usage
+                }
+            }
+            
+        except Exception as error:
+            self.logger.error(f"Script validation failed: {error}")
+            return {
+                'success': False,
+                'error': f"Script validation error: {str(error)}"
+            }
