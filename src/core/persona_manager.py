@@ -56,8 +56,8 @@ class PersonaManager:
                 next(iter(self.personas.values()), None)
             )
             
-            self.logger.info(f"🎭 Persona Manager initialized with {len(self.personas)} personas")
-            self.logger.info(f"📝 Current persona: {self.current_persona.name if self.current_persona else 'None'}")
+            self.logger.info(f"[PERSONA] Persona Manager initialized with {len(self.personas)} personas")
+            self.logger.info(f"[INFO] Current persona: {self.current_persona.name if self.current_persona else 'None'}")
             
         except Exception as error:
             self.logger.error(f"Persona Manager initialization error: {error}")
@@ -79,9 +79,9 @@ class PersonaManager:
                     if self.validate_persona(persona_data):
                         persona = self._create_persona_from_data(persona_data)
                         self.personas[persona.id] = persona
-                        self.logger.info(f"✅ Loaded persona: {persona.name} ({persona.id})")
+                        self.logger.info(f"[SUCCESS] Loaded persona: {persona.name} ({persona.id})")
                     else:
-                        self.logger.warning(f"⚠️ Invalid persona file: {file_path.name}")
+                        self.logger.warning(f"[WARNING] Invalid persona file: {file_path.name}")
                 except Exception as e:
                     self.logger.error(f"Error loading persona {file_path.name}: {e}")
                     
@@ -132,7 +132,7 @@ class PersonaManager:
             id='fallback',
             name='BK25 Assistant',
             description='Default assistant persona',
-            greeting='👋 Hello! I\'m BK25, your helpful AI assistant.',
+            greeting='Hello! I\'m BK25, your helpful AI assistant.',
             capabilities=['General conversation', 'Automation scripting'],
             personality=PersonaPersonality(
                 tone='friendly',
@@ -147,7 +147,7 @@ class PersonaManager:
         
         self.personas['fallback'] = fallback_persona
         self.current_persona = fallback_persona
-        self.logger.info('🔄 Using fallback persona')
+        self.logger.info('[RELOAD] Using fallback persona')
     
     def get_all_personas(self) -> List[Persona]:
         """Get all available personas"""
@@ -169,15 +169,62 @@ class PersonaManager:
         persona = self.personas.get(persona_id)
         if persona:
             self.current_persona = persona
-            self.logger.info(f"🎭 Switched to persona: {persona.name} ({persona.id})")
+            self.logger.info(f"[PERSONA] Switched to persona: {persona.name} ({persona.id})")
             return persona
         else:
-            self.logger.warning(f"⚠️ Persona not found: {persona_id}")
+            self.logger.warning(f"[WARNING] Persona not found: {persona_id}")
             return None
     
     def get_persona(self, persona_id: str) -> Optional[Persona]:
         """Get persona by ID"""
         return self.personas.get(persona_id)
+    
+    def add_custom_persona(self, persona_data: Dict[str, Any]) -> Optional[Persona]:
+        """Add a new custom persona"""
+        try:
+            # Validate required fields
+            required_fields = ['id', 'name', 'description']
+            for field in required_fields:
+                if field not in persona_data:
+                    self.logger.error(f"Missing required field for custom persona: {field}")
+                    return None
+            
+            # Check if ID already exists
+            if persona_data['id'] in self.personas:
+                self.logger.warning(f"Persona ID already exists: {persona_data['id']}")
+                return None
+            
+            # Create personality data
+            personality_data = persona_data.get('personality', {})
+            personality = PersonaPersonality(
+                tone=personality_data.get('tone', 'neutral'),
+                approach=personality_data.get('approach', 'helpful'),
+                philosophy=personality_data.get('philosophy', 'assistance'),
+                motto=personality_data.get('motto', 'here to help')
+            )
+            
+            # Create new persona
+            new_persona = Persona(
+                id=persona_data['id'],
+                name=persona_data['name'],
+                description=persona_data['description'],
+                greeting=persona_data.get('greeting', f"Hello! I'm {persona_data['name']}. How can I help you today?"),
+                capabilities=persona_data.get('capabilities', []),
+                personality=personality,
+                system_prompt=persona_data.get('system_prompt', f"You are {persona_data['name']}, {persona_data['description']}"),
+                examples=persona_data.get('examples', []),
+                channels=persona_data.get('channels', ['web'])
+            )
+            
+            # Add to personas dictionary
+            self.personas[new_persona.id] = new_persona
+            self.logger.info(f"[SUCCESS] Added custom persona: {new_persona.name} ({new_persona.id})")
+            
+            return new_persona
+            
+        except Exception as error:
+            self.logger.error(f"Error adding custom persona: {error}")
+            return None
     
     def build_persona_prompt(self, message: str, conversation_history: Optional[List[Dict[str, str]]] = None) -> str:
         """Build conversation prompt using current persona"""
@@ -238,7 +285,7 @@ class PersonaManager:
                 next(iter(self.personas.values()), None)
             )
         
-        self.logger.info('🔄 Personas reloaded')
+        self.logger.info('[RELOAD] Personas reloaded')
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert current persona to dictionary for API responses"""

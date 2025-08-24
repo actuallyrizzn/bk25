@@ -125,7 +125,7 @@ class ScriptExecutor:
             }
         }
         
-        self.logger.info("🚀 Script Executor initialized with safety policies")
+        self.logger.info("[INIT] Script Executor initialized with safety policies")
     
     async def execute_script(self, request: ExecutionRequest) -> ExecutionResult:
         """Execute a script with full monitoring and safety checks"""
@@ -266,7 +266,7 @@ class ScriptExecutor:
             command = self._prepare_execution_command(request, context)
             
             # Start execution
-            self.logger.info(f"🚀 Starting script execution: {command}")
+            self.logger.info(f"[EXEC] Starting script execution: {command}")
             
             process = await asyncio.create_subprocess_exec(
                 *command,

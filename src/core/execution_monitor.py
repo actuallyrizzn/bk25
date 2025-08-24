@@ -95,12 +95,12 @@ class ExecutionMonitor:
             'average_execution_time': 0.0
         }
         
-        self.logger.info("🚀 Execution Monitor initialized")
+        self.logger.info("[INIT] Execution Monitor initialized")
     
     async def start_monitoring(self):
         """Start the monitoring system"""
         try:
-            self.logger.info("🔄 Starting execution monitoring system")
+            self.logger.info("[START] Starting execution monitoring system")
             
             # Start task processor
             asyncio.create_task(self._process_task_queue())
@@ -111,7 +111,7 @@ class ExecutionMonitor:
             # Start cleanup task
             asyncio.create_task(self._cleanup_old_tasks())
             
-            self.logger.info("✅ Execution monitoring system started")
+            self.logger.info("[SUCCESS] Execution monitoring system started")
             
         except Exception as error:
             self.logger.error(f"❌ Failed to start monitoring: {error}")
@@ -512,7 +512,7 @@ class ExecutionMonitor:
     async def shutdown(self):
         """Shutdown the monitoring system"""
         try:
-            self.logger.info("🔄 Shutting down execution monitoring system")
+            self.logger.info("[SHUTDOWN] Shutting down execution monitoring system")
             
             # Cancel all running tasks
             for task_id, task in self.running_tasks.items():
@@ -522,7 +522,7 @@ class ExecutionMonitor:
             if self.running_tasks:
                 await asyncio.gather(*self.running_tasks.values(), return_exceptions=True)
             
-            self.logger.info("✅ Execution monitoring system shutdown complete")
+            self.logger.info("[SUCCESS] Execution monitoring system shutdown complete")
             
         except Exception as error:
             self.logger.error(f"❌ Shutdown error: {error}")

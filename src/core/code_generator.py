@@ -70,7 +70,7 @@ class CodeGenerator:
             'cross_platform': ['bash', 'powershell']
         }
         
-        self.logger.info("🚀 Code Generator initialized with all platforms")
+        self.logger.info("[INIT] Code Generator initialized with all platforms")
     
     async def generate_script(self, request: GenerationRequest, llm_manager: Optional[Any] = None, prompt_engineer: Optional[Any] = None) -> GenerationResult:
         """Generate a script based on the request"""

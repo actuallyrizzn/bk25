@@ -44,7 +44,7 @@ app.add_middleware(
 # Mount static files (web interface)
 web_path = Path(__file__).parent.parent / "web"
 if web_path.exists():
-    app.mount("/", StaticFiles(directory=str(web_path), html=True), name="web")
+    app.mount("/web", StaticFiles(directory=str(web_path), html=True), name="web")
 
 # Global BK25 instance
 bk25: Optional[BK25Core] = None
@@ -135,6 +135,29 @@ async def get_personas(channel: str = "web"):
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error loading personas: {str(error)}")
 
+@app.get("/api/personas/current")
+async def get_current_persona():
+    """Get current active persona"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        current_persona = bk25.persona_manager.get_current_persona()
+        if not current_persona:
+            raise HTTPException(status_code=404, detail="No current persona set")
+        
+        return {
+            "id": current_persona.id,
+            "name": current_persona.name,
+            "description": current_persona.description,
+            "personality": current_persona.personality,
+            "capabilities": current_persona.capabilities,
+            "examples": current_persona.examples,
+            "channels": current_persona.channels
+        }
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error getting current persona: {str(error)}")
+
 @app.get("/api/personas/{persona_id}")
 async def get_persona(persona_id: str):
     """Get specific persona by ID"""
@@ -176,6 +199,55 @@ async def switch_persona(persona_id: str):
         "persona": persona
     }
 
+@app.post("/api/personas/create")
+async def create_persona(request: Request):
+    """Create a new custom persona"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        body = await request.json()
+        
+        # Validate required fields
+        required_fields = ["name", "description", "personality"]
+        for field in required_fields:
+            if field not in body:
+                raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
+        
+        # Create persona data structure
+        persona_data = {
+            "id": body.get("id", f"custom-{body['name'].lower().replace(' ', '-')}"),
+            "name": body["name"],
+            "description": body["description"],
+            "personality": body["personality"],
+            "capabilities": body.get("capabilities", {}),
+            "examples": body.get("examples", []),
+            "channels": body.get("channels", ["web"]),
+            "greeting": body.get("greeting", f"Hello! I'm {body['name']}. How can I help you today?")
+        }
+        
+        # Add to persona manager
+        new_persona = bk25.persona_manager.add_custom_persona(persona_data)
+        if not new_persona:
+            raise HTTPException(status_code=500, detail="Failed to create persona")
+        
+        return {
+            "message": f"Persona {persona_data['name']} created successfully",
+            "persona": {
+                "id": new_persona.id,
+                "name": new_persona.name,
+                "description": new_persona.description,
+                "personality": new_persona.personality,
+                "capabilities": new_persona.capabilities,
+                "examples": new_persona.examples,
+                "channels": new_persona.channels
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error creating persona: {str(error)}")
+
 @app.get("/api/channels")
 async def get_channels():
     """Get available channels"""
@@ -207,6 +279,34 @@ async def get_channels():
         }
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error loading channels: {str(error)}")
+
+@app.get("/api/channels/current")
+async def get_current_channel():
+    """Get current active channel"""
+    if not bk25:
+        raise HTTPException(status_code=503, detail="BK25 not initialized")
+    
+    try:
+        current_channel = bk25.channel_manager.get_current_channel()
+        if not current_channel:
+            raise HTTPException(status_code=404, detail="No current channel set")
+        
+        return {
+            "id": current_channel.id,
+            "name": current_channel.name,
+            "description": current_channel.description,
+            "capabilities": {
+                name: {
+                    "supported": cap.supported,
+                    "description": cap.description
+                }
+                for name, cap in current_channel.capabilities.items()
+            },
+            "artifact_types": current_channel.artifact_types,
+            "metadata": current_channel.metadata
+        }
+    except Exception as error:
+        raise HTTPException(status_code=500, detail=f"Error getting current channel: {str(error)}")
 
 @app.get("/api/channels/{channel_id}")
 async def get_channel(channel_id: str):

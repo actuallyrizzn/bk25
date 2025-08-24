@@ -60,12 +60,12 @@ class BK25Core:
         self.ollama_connected = False
         
         self.logger = get_logger("bk25_core")
-        self.logger.info("🚀 BK25 Core initialized")
+        self.logger.info("[INIT] BK25 Core initialized")
     
     async def initialize(self) -> None:
         """Initialize all BK25 components"""
         try:
-            self.logger.info("🔧 Initializing BK25 Core...")
+            self.logger.info("[INIT] Initializing BK25 Core...")
             
             # Initialize persona manager
             await self.persona_manager.initialize()
@@ -73,10 +73,10 @@ class BK25Core:
             # Test Ollama connection
             await self.test_ollama_connection()
             
-            self.logger.info("✅ BK25 Core initialization complete")
+            self.logger.info("[SUCCESS] BK25 Core initialization complete")
             
         except Exception as error:
-            self.logger.error(f"❌ BK25 Core initialization failed: {error}")
+            self.logger.error(f"[ERROR] BK25 Core initialization failed: {error}")
             raise
     
     async def test_ollama_connection(self) -> bool:
@@ -88,16 +88,16 @@ class BK25Core:
                 response = await client.get(f"{self.ollama_url}/api/tags", timeout=5.0)
                 if response.status_code == 200:
                     self.ollama_connected = True
-                    self.logger.info(f"✅ Ollama connected at {self.ollama_url}")
+                    self.logger.info(f"[SUCCESS] Ollama connected at {self.ollama_url}")
                     return True
                 else:
                     self.ollama_connected = False
-                    self.logger.warning(f"⚠️ Ollama responded with status {response.status_code}")
+                    self.logger.warning(f"[WARNING] Ollama responded with status {response.status_code}")
                     return False
                     
         except Exception as error:
             self.ollama_connected = False
-            self.logger.warning(f"⚠️ Ollama connection failed: {error}")
+            self.logger.warning(f"[WARNING] Ollama connection failed: {error}")
             return False
     
     def is_ollama_connected(self) -> bool:
@@ -107,7 +107,7 @@ class BK25Core:
     async def generate_completion(self, prompt: str, conversation_id: Optional[str] = None) -> str:
         """Generate LLM completion using current persona"""
         if not self.ollama_connected:
-            return "⚠️ Ollama not connected. Please check your Ollama service."
+            return "[WARNING] Ollama not connected. Please check your Ollama service."
         
         try:
             import httpx

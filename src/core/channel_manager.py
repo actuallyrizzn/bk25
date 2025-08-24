@@ -80,7 +80,7 @@ class ChannelManager:
                 },
                 supported_personas=["*"],
                 artifact_types=["blocks", "attachments", "modals"],
-                metadata={"color": "#4A154B", "icon": "💬"}
+                metadata={"color": "#4A154B", "icon": "chat"}
             ),
             Channel(
                 id="teams",
@@ -94,7 +94,7 @@ class ChannelManager:
                 },
                 supported_personas=["*"],
                 artifact_types=["adaptive_cards", "task_modules", "bot_activities"],
-                metadata={"color": "#6264A7", "icon": "🏢"}
+                metadata={"color": "#6264A7", "icon": "office"}
             ),
             Channel(
                 id="discord",
@@ -108,7 +108,7 @@ class ChannelManager:
                 },
                 supported_personas=["*"],
                 artifact_types=["embeds", "slash_commands", "components"],
-                metadata={"color": "#5865F2", "icon": "🎮"}
+                metadata={"color": "#5865F2", "icon": "game"}
             ),
             Channel(
                 id="twitch",
@@ -122,7 +122,7 @@ class ChannelManager:
                 },
                 supported_personas=["*"],
                 artifact_types=["chat_commands", "extensions"],
-                metadata={"color": "#9146FF", "icon": "📺"}
+                metadata={"color": "#9146FF", "icon": "stream"}
             ),
             Channel(
                 id="whatsapp",
@@ -136,7 +136,7 @@ class ChannelManager:
                 },
                 supported_personas=["*"],
                 artifact_types=["templates", "media", "interactive"],
-                metadata={"color": "#25D366", "icon": "📱"}
+                metadata={"color": "#25D366", "icon": "mobile"}
             ),
             Channel(
                 id="apple-business-chat",
@@ -150,14 +150,14 @@ class ChannelManager:
                 },
                 supported_personas=["*"],
                 artifact_types=["rich_links", "interactive_messages", "payments"],
-                metadata={"color": "#000000", "icon": "🍎"}
+                metadata={"color": "#000000", "icon": "apple"}
             )
         ]
         
         for channel in channels:
             self.channels[channel.id] = channel
         
-        self.logger.info(f"📺 Channel Manager initialized with {len(self.channels)} channels")
+        self.logger.info(f"[CHANNEL] Channel Manager initialized with {len(self.channels)} channels")
     
     def get_channel(self, channel_id: str) -> Optional[Channel]:
         """Get a channel by ID"""
@@ -176,10 +176,10 @@ class ChannelManager:
         if channel_id in self.channels:
             self.current_channel = channel_id
             channel = self.channels[channel_id]
-            self.logger.info(f"📺 Switched to channel: {channel.name} ({channel.id})")
+            self.logger.info(f"[CHANNEL] Switched to channel: {channel.name} ({channel.id})")
             return channel
         else:
-            self.logger.warning(f"⚠️ Channel not found: {channel_id}")
+            self.logger.warning(f"[WARNING] Channel not found: {channel_id}")
             return None
     
     def get_channel_capabilities(self, channel_id: str) -> Dict[str, ChannelCapability]:
