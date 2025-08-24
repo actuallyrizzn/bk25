@@ -10,7 +10,15 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from .config import config
+# Import config after adding src to path
+try:
+    from config import config
+except ImportError:
+    # Fallback for when running as module
+    import os
+    import sys
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from config import config
 
 def setup_logging(
     log_level: Optional[str] = None,

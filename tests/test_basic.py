@@ -15,8 +15,8 @@ sys.path.insert(0, str(src_path))
 def test_imports():
     """Test that basic modules can be imported"""
     try:
-        from src.config import BK25Config, config
-        from src.logging_config import setup_logging, get_logger
+        from config import BK25Config, config
+        from logging_config import setup_logging, get_logger
         assert True
     except ImportError as e:
         pytest.fail(f"Failed to import basic modules: {e}")
@@ -24,7 +24,7 @@ def test_imports():
 def test_config_creation():
     """Test that configuration can be created"""
     try:
-        from src.config import BK25Config
+        from config import BK25Config
         config = BK25Config()
         assert config.port == 8000
         assert config.host == "0.0.0.0"
@@ -35,7 +35,7 @@ def test_config_creation():
 def test_logging_setup():
     """Test that logging can be set up"""
     try:
-        from src.logging_config import setup_logging
+        from logging_config import setup_logging
         logger = setup_logging(log_level="INFO")
         assert logger is not None
         assert logger.level == 20  # INFO level
