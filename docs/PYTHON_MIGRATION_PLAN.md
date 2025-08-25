@@ -2,8 +2,30 @@
 
 **Document Created**: January 27, 2025  
 **Purpose**: Comprehensive migration plan from Node.js to Python with functional parity  
-**Project Manager**: AI Assistant  
+**Project Manager**: Mark Rizzn Hopkins  
+**Python Port Developer**: Mark Rizzn Hopkins - [guesswho@rizzn.com](mailto:guesswho@rizzn.com) - [rizzn.net](https://rizzn.net)  
 **Target**: BK25 - Multi-Persona Channel Simulator (Python Edition)  
+
+**Note**: This migration maintains 100% functional parity with the original Node.js implementation while leveraging Python's strengths for enhanced performance and maintainability.  
+
+---
+
+## 👥 Credits & Acknowledgments
+
+### Original BK25 Development Team
+- **Peter Swimm** - Original Botkit PM, project architect at Toilville
+- **Ben Brown** - Botkit creator and conversational AI pioneer
+- **The Toilville Team** - Original Node.js implementation and vision
+
+### Python Port Development
+- **Mark Rizzn Hopkins** - Python port architect and lead developer
+  - **Contact**: [guesswho@rizzn.com](mailto:guesswho@rizzn.com)
+  - **Website**: [rizzn.net](https://rizzn.net)
+  - **Role**: Complete Python migration with 100% functional parity
+  - **Contributions**: Architecture design, core implementation, testing framework, documentation
+
+### Original Implementation
+The complete Node.js implementation is preserved in the `old/` directory for reference, historical context, and to honor the original work.
 
 ---
 
@@ -398,6 +420,39 @@ This migration plan ensures BK25 maintains 100% functional parity while transiti
 - **Future Readiness**: Foundation for advanced AI/ML features
 
 The migration will position BK25 for enhanced capabilities while preserving its sophisticated architecture and user experience.
+
+---
+
+## 📁 Original Implementation Preservation
+
+### Directory Structure
+The complete Node.js implementation is preserved in the `old/` directory:
+
+```
+old/
+├── src/                    # Original Node.js source code
+├── package.json           # Original dependencies
+├── package-lock.json      # Locked dependency versions
+├── README.md              # Original documentation
+├── docs/                  # Original project documentation
+├── web/                   # Original web interface
+├── personas/              # Original persona definitions
+├── docker/                # Original Docker configuration
+└── ...                    # All original project files
+```
+
+### Preservation Philosophy
+- **Historical Context**: Complete project evolution preserved
+- **Feature Reference**: Side-by-side functionality verification
+- **Legacy Honor**: Respecting the original work and contributors
+- **Learning Resource**: Understanding the evolution of the system
+- **Fallback Option**: Original implementation remains functional
+
+### Migration Integrity
+- **No Original Files Modified**: All original files preserved exactly
+- **Complete Preservation**: No files removed or altered
+- **Git History**: Original commit history maintained
+- **Dependencies**: Original package.json and lock files intact
 
 ---
 

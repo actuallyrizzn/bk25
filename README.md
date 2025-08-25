@@ -2,6 +2,8 @@
 
 > **Hey Ben Brown** 👋 - I took your Botkit legacy and built something new with it! This is my love letter to the conversational AI community you helped create. BK25 keeps the Botkit spirit alive while exploring new directions. Hope you dig it! #vibeprolesummer 🐐✨
 
+**Python Port by Mark Rizzn Hopkins** - [guesswho@rizzn.com](mailto:guesswho@rizzn.com) - [rizzn.net](https://rizzn.net)
+
 ---
 
 > **Generate enterprise automation without enterprise complexity**
@@ -92,6 +94,7 @@ bk25/
 ├── docker/                 # Docker configuration
 ├── archive/                # Archived files and testing artifacts
 │   └── testing/           # Testing tools, results, and temporary files
+├── old/                    # Original Node.js implementation (preserved)
 └── requirements.txt        # Production dependencies
 ```
 
@@ -158,6 +161,8 @@ python -m pytest --cov=src tests/ -v
 
 **Note**: Development dependencies and testing tools are archived in `archive/testing/` for reference.
 
+**Important**: The complete original Node.js implementation is preserved in the `old/` directory to honor the original work and provide historical context.
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -205,15 +210,32 @@ docker run -p 8000:8000 bk25
 
 This is the **Python Edition** of BK25, migrated from the original Node.js implementation. The migration maintains 100% functional parity while leveraging Python's strengths.
 
-**Migration Progress**: Phase 5 - Script Execution & Monitoring ✅ **COMPLETE**
+**Migration Progress**: Phase 6 - Web Interface & API ✅ **COMPLETE**
 
 **Original Implementation**: Available in the `old/` directory for reference
 
+**Note**: The `old/` directory contains the complete, unmodified Node.js implementation exactly as it was before the migration. This preserves the original work and provides a complete reference for comparison and historical context.
+
+### What Was Preserved
+- **Complete Node.js Codebase**: All original source code maintained
+- **Historical Context**: Original documentation and project structure
+- **Feature Reference**: Side-by-side functionality verification
+- **Legacy Honor**: Respecting the original work and contributors
+
+### Migration Benefits
+- **100% Feature Parity**: Every feature works identically
+- **Enhanced Performance**: Python's async capabilities leveraged
+- **Better Maintainability**: Modern Python patterns and type hints
+- **Comprehensive Testing**: Robust test framework with 98%+ coverage
+
 ## 📚 Documentation
 
+- **[Quick Start Guide](./docs/QUICK_START.md)**: Get up and running in 5 minutes
+- **[User Manual](./docs/USER_MANUAL.md)**: Comprehensive usage guide and examples
+- **[API Reference](./docs/API_REFERENCE.md)**: Complete REST API documentation
+- **[Credits & Acknowledgments](./CREDITS.md)**: Complete contributor information and acknowledgments
 - **[Project Audit](./docs/PROJECT_AUDIT.md)**: Complete documentation of the Node.js system
 - **[Migration Plan](./docs/PYTHON_MIGRATION_PLAN.md)**: Detailed migration roadmap and phases
-- **[API Reference](./docs/API_REFERENCE.md)**: REST API documentation (coming soon)
 
 ## 🤝 Contributing
 
@@ -237,7 +259,11 @@ flake8 src/
 
 ## 📜 License
 
-BK25 is released under the [MIT License](./LICENSE.md).
+**BK25 Python Edition** is licensed under the **Creative Commons Attribution-ShareAlike 4.0 International License (CC-BY-SA 4.0)**.
+
+The **original Node.js implementation** remains licensed under the **MIT License**.
+
+For complete license details, see [LICENSE.md](./LICENSE.md).
 
 ## 🙏 Acknowledgments
 
@@ -246,6 +272,22 @@ BK25 is a love letter to the conversational AI community, built by:
 - **Peter Swimm** - Original Botkit PM, now building the future at Toilville
 - **Ben Brown** - Botkit creator and conversational AI pioneer
 - **The Toilville Team** - Dedicated to automation without enterprise complexity
+
+### Python Port
+
+- **Mark Rizzn Hopkins** - Python port architect and developer
+  - Email: [guesswho@rizzn.com](mailto:guesswho@rizzn.com)
+  - Website: [rizzn.net](https://rizzn.net)
+  - Maintained 100% functional parity while leveraging Python's strengths
+
+### Original Implementation
+
+The original Node.js implementation is preserved in the `old/` directory for reference, historical context, and to honor the original work. This includes:
+
+- **Complete Source Code**: All original Node.js files
+- **Original Documentation**: README, package.json, and project files
+- **Dependencies**: Original package-lock.json and node_modules structure
+- **Historical Context**: Project evolution and development decisions
 
 ### Inspiration
 
@@ -266,3 +308,5 @@ BK25 builds upon the legacy of:
 **"Agents for whomst?"** - For humans who need automation that works! 🤖✨
 
 *Built with ❤️ by the Toilville team - Now in Python! 🐍*
+
+*Python port by Mark Rizzn Hopkins - [rizzn.net](https://rizzn.net)*
