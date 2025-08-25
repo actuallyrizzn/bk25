@@ -1,19 +1,19 @@
 {
   "llm": {
-    "provider": "ollama",
+    "provider": "openai",
     "ollama_url": "http://localhost:11434",
     "ollama_model": "llama3.1:8b",
-    "openai_api_key": "",
+    "openai_api_key": "YOUR_OPENAI_API_KEY_HERE",
     "openai_model": "gpt-4o",
     "openai_base_url": "https://api.openai.com/v1",
-    "anthropic_api_key": "",
+    "anthropic_api_key": "YOUR_ANTHROPIC_API_KEY_HERE",
     "anthropic_model": "claude-3-5-sonnet",
     "anthropic_base_url": "https://api.anthropic.com",
-    "google_api_key": "",
+    "google_api_key": "YOUR_GOOGLE_API_KEY_HERE",
     "google_model": "gemini-1.5-pro",
-    "custom_api_url": "",
-    "custom_api_key": "",
-    "custom_model": "",
+    "custom_api_url": "YOUR_CUSTOM_API_URL_HERE",
+    "custom_api_key": "YOUR_CUSTOM_API_KEY_HERE",
+    "custom_model": "YOUR_CUSTOM_MODEL_HERE",
     "temperature": 0.7,
     "max_tokens": 2000,
     "timeout": 60
@@ -22,8 +22,8 @@
     "host": "0.0.0.0",
     "port": 3003,
     "reload": true,
-    "secret_key": "your-secret-key-here-change-this-in-production",
-    "cors_origins": ["http://localhost:3000", "http://localhost:3003"]
+    "secret_key": "CHANGE_THIS_TO_A_RANDOM_SECRET_KEY_IN_PRODUCTION",
+    "cors_origins": null
   },
   "database": {
     "url": "sqlite:///./data/bk25.db",

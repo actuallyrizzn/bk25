@@ -183,6 +183,12 @@ logs/
 .env.local
 .env.production
 
+# Configuration files (may contain API keys)
+config/
+*.config.json
+config.json
+bk25_config.json
+
 # Testing and Development
 archive/testing/
 test_results/
