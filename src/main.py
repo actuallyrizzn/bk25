@@ -45,16 +45,20 @@ async def lifespan(app: FastAPI):
     try:
         print("[STARTUP] BK25 Python Edition starting up...")
         
+        # Debug: Print current LLM configuration
+        print(f"[DEBUG] Current LLM provider: {config.llm.provider}")
+        print(f"[DEBUG] OpenAI API key set: {'YES' if config.llm.openai_api_key else 'NO'}")
+        print(f"[DEBUG] OpenAI API key length: {len(config.llm.openai_api_key) if config.llm.openai_api_key else 0}")
+        print(f"[DEBUG] Ollama URL: {config.llm.ollama_url}")
+        
         # Initialize BK25 core with full LLM configuration
-        bk25 = BK25Core({
-            "ollama_url": os.getenv("OLLAMA_URL", "http://localhost:11434"),
-            "model": os.getenv("BK25_MODEL", "llama3.1:8b"),
+        bk25_config = {
             "port": int(os.getenv("PORT", "8000")),
             "personas_path": str(config.paths.personas_path),
-            # Add LLM configuration from config module
+            # LLM configuration from config module
             "provider": config.llm.provider,
-            "ollama_url": config.llm.ollama_url,
-            "ollama_model": config.llm.ollama_model,
+            "ollama_url": config.llm.ollama_url or os.getenv("OLLAMA_URL", "http://localhost:11434"),
+            "ollama_model": config.llm.ollama_model or os.getenv("BK25_MODEL", "llama3.1:8b"),
             "openai_api_key": config.llm.openai_api_key,
             "openai_model": config.llm.openai_model,
             "openai_base_url": config.llm.openai_base_url,
@@ -69,7 +73,13 @@ async def lifespan(app: FastAPI):
             "temperature": config.llm.temperature,
             "max_tokens": config.llm.max_tokens,
             "timeout": config.llm.timeout
-        })
+        }
+        
+        print(f"[DEBUG] BK25 config keys: {list(bk25_config.keys())}")
+        print(f"[DEBUG] LLM provider in config: {bk25_config.get('provider')}")
+        print(f"[DEBUG] OpenAI API key in config: {'SET' if bk25_config.get('openai_api_key') else 'NOT SET'}")
+        
+        bk25 = BK25Core(bk25_config)
         
         await bk25.initialize()
         
@@ -589,7 +599,7 @@ async def switch_channel(channel_id: str):
 
 @app.post("/api/chat")
 async def chat_endpoint(request: Request):
-    """Chat processing endpoint"""
+    """Chat processing endpoint with code extraction"""
     if not bk25:
         raise HTTPException(status_code=503, detail="BK25 not initialized")
     
@@ -609,11 +619,75 @@ async def chat_endpoint(request: Request):
         if "error" in result:
             raise HTTPException(status_code=500, detail=result["error"])
         
-        return result
+        # Extract code blocks from the response if present
+        response_text = result.get("response", "")
+        extracted_code = None
+        
+        if response_text and "```" in response_text:
+            try:
+                import markdown
+                import re
+                
+                # Use regex to extract code blocks (more reliable than markdown parser for this)
+                code_block_pattern = r'```(\w+)?\n([\s\S]*?)```'
+                matches = re.findall(code_block_pattern, response_text)
+                
+                if matches:
+                    # Get the first code block
+                    language, code_content = matches[0]
+                    language = language or "script"
+                    code_content = code_content.strip()
+                    
+                    extracted_code = {
+                        "language": language,
+                        "code": code_content,
+                        "filename": f"Generated {language.capitalize()} Script"
+                    }
+                    
+                    print(f"[DEBUG] Extracted code block: language={language}, length={len(code_content)}")
+                    print(f"[DEBUG] Code preview: {code_content[:100]}...")
+                
+            except Exception as parse_error:
+                print(f"[WARNING] Failed to parse markdown: {parse_error}")
+                # Fallback to simple extraction
+                try:
+                    start = response_text.find("```")
+                    end = response_text.rfind("```")
+                    if start != -1 and end != -1 and end > start:
+                        code_content = response_text[start + 3:end].strip()
+                        # Remove language identifier if present
+                        if code_content.startswith("\n"):
+                            code_content = code_content[1:]
+                        if "\n" in code_content:
+                            first_line, rest = code_content.split("\n", 1)
+                            if not first_line.strip() or first_line.strip().isalpha():
+                                code_content = rest.strip()
+                        
+                        extracted_code = {
+                            "language": "script",
+                            "code": code_content,
+                            "filename": "Generated Script"
+                        }
+                        print(f"[DEBUG] Fallback extraction: length={len(code_content)}")
+                except Exception as fallback_error:
+                    print(f"[ERROR] Fallback extraction also failed: {fallback_error}")
+        
+        # Return enhanced response with extracted code
+        enhanced_result = {
+            **result,
+            "extracted_code": extracted_code
+        }
+        
+        print(f"[DEBUG] Chat response: has_code={extracted_code is not None}")
+        if extracted_code:
+            print(f"[DEBUG] Code block: {extracted_code['language']} ({len(extracted_code['code'])} chars)")
+        
+        return enhanced_result
         
     except HTTPException:
         raise
     except Exception as error:
+        print(f"[ERROR] Chat endpoint error: {error}")
         raise HTTPException(status_code=500, detail=f"Error processing chat: {str(error)}")
 
 @app.post("/api/generate")

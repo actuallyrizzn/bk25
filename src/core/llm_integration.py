@@ -262,18 +262,32 @@ class LLMManager:
         self.config = config
         self.logger = get_logger("llm_manager")
         
+        # Debug: Print what we received
+        self.logger.info(f"LLM Manager received config keys: {list(config.keys())}")
+        self.logger.info(f"LLM Manager config provider: {config.get('provider')}")
+        self.logger.info(f"LLM Manager ollama_url: {config.get('ollama_url')}")
+        self.logger.info(f"LLM Manager openai_api_key: {'SET' if config.get('openai_api_key') else 'NOT SET'}")
+        
         # Initialize providers
         self.providers = {}
         
         # Add Ollama provider
         if config.get('ollama_url'):
+            self.logger.info(f"Adding Ollama provider with URL: {config.get('ollama_url')}")
             self.providers['ollama'] = OllamaProvider(config)
         
         # Add OpenAI provider
-        if config.get('openai_api_key'):
-            self.providers['openai'] = OpenAIProvider(config)
+        openai_key = config.get('openai_api_key')
+        self.logger.info(f"OpenAI key check: '{openai_key}' (type: {type(openai_key)}, length: {len(openai_key) if openai_key else 0})")
+        self.logger.info(f"OpenAI key truthy check: {bool(openai_key)}")
         
-        self.logger.info(f"LLM Manager initialized with {len(self.providers)} providers")
+        if openai_key:
+            self.logger.info(f"Adding OpenAI provider with model: {config.get('openai_model', 'gpt-4o')}")
+            self.providers['openai'] = OpenAIProvider(config)
+        else:
+            self.logger.warning("OpenAI provider not added - API key is empty/falsy")
+        
+        self.logger.info(f"LLM Manager initialized with {len(self.providers)} providers: {list(self.providers.keys())}")
     
     async def generate(self, request: LLMRequest, preferred_provider: Optional[str] = None) -> LLMResponse:
         """Generate content using the best available provider"""

@@ -94,21 +94,35 @@ class BK25Config:
     def _load_environment_vars(self):
         """Load configuration from environment variables"""
         
-        # LLM Configuration
-        self.llm.provider = os.getenv("LLM_PROVIDER", self.llm.provider)
-        self.llm.ollama_url = os.getenv("OLLAMA_URL", self.llm.ollama_url)
-        self.llm.ollama_model = os.getenv("OLLAMA_MODEL", self.llm.ollama_model)
-        self.llm.openai_api_key = os.getenv("OPENAI_API_KEY", self.llm.openai_api_key)
-        self.llm.openai_model = os.getenv("OPENAI_MODEL", self.llm.openai_model)
-        self.llm.openai_base_url = os.getenv("OPENAI_BASE_URL", self.llm.openai_base_url)
-        self.llm.anthropic_api_key = os.getenv("ANTHROPIC_API_KEY", self.llm.anthropic_api_key)
-        self.llm.anthropic_model = os.getenv("ANTHROPIC_MODEL", self.llm.anthropic_model)
-        self.llm.anthropic_base_url = os.getenv("ANTHROPIC_BASE_URL", self.llm.anthropic_base_url)
-        self.llm.google_api_key = os.getenv("GOOGLE_API_KEY", self.llm.google_api_key)
-        self.llm.google_model = os.getenv("GOOGLE_MODEL", self.llm.google_model)
-        self.llm.custom_api_url = os.getenv("CUSTOM_API_URL", self.llm.custom_api_url)
-        self.llm.custom_api_key = os.getenv("CUSTOM_API_KEY", self.llm.custom_api_key)
-        self.llm.custom_model = os.getenv("CUSTOM_MODEL", self.llm.custom_model)
+        # LLM Configuration - Only override if environment variable exists and has a value
+        if os.getenv("LLM_PROVIDER"):
+            self.llm.provider = os.getenv("LLM_PROVIDER")
+        if os.getenv("OLLAMA_URL"):
+            self.llm.ollama_url = os.getenv("OLLAMA_URL")
+        if os.getenv("OLLAMA_MODEL"):
+            self.llm.ollama_model = os.getenv("OLLAMA_MODEL")
+        if os.getenv("OPENAI_API_KEY"):
+            self.llm.openai_api_key = os.getenv("OPENAI_API_KEY")
+        if os.getenv("OPENAI_MODEL"):
+            self.llm.openai_model = os.getenv("OPENAI_MODEL")
+        if os.getenv("OPENAI_BASE_URL"):
+            self.llm.openai_base_url = os.getenv("OPENAI_BASE_URL")
+        if os.getenv("ANTHROPIC_API_KEY"):
+            self.llm.anthropic_api_key = os.getenv("ANTHROPIC_API_KEY")
+        if os.getenv("ANTHROPIC_MODEL"):
+            self.llm.anthropic_model = os.getenv("ANTHROPIC_MODEL")
+        if os.getenv("ANTHROPIC_BASE_URL"):
+            self.llm.anthropic_base_url = os.getenv("ANTHROPIC_BASE_URL")
+        if os.getenv("GOOGLE_API_KEY"):
+            self.llm.google_api_key = os.getenv("GOOGLE_API_KEY")
+        if os.getenv("GOOGLE_MODEL"):
+            self.llm.google_model = os.getenv("GOOGLE_MODEL")
+        if os.getenv("CUSTOM_API_URL"):
+            self.llm.custom_api_url = os.getenv("CUSTOM_API_URL")
+        if os.getenv("CUSTOM_API_KEY"):
+            self.llm.custom_api_key = os.getenv("CUSTOM_API_KEY")
+        if os.getenv("CUSTOM_MODEL"):
+            self.llm.custom_model = os.getenv("CUSTOM_MODEL")
         
         # LLM Parameters
         if os.getenv("LLM_TEMPERATURE"):
@@ -195,6 +209,8 @@ class BK25Config:
                             setattr(self.database, key, value)
                 
                 print(f"[CONFIG] Loaded configuration from {config_file}")
+                print(f"[CONFIG] LLM provider from file: {self.llm.provider}")
+                print(f"[CONFIG] OpenAI API key from file: {'SET' if self.llm.openai_api_key else 'NOT SET'}")
         except Exception as e:
             print(f"[CONFIG] Warning: Could not load config file {config_file}: {e}")
     
@@ -322,8 +338,8 @@ class BK25Config:
         # Save configuration
         self.save_config()
 
-# Global configuration instance
-config = BK25Config()
+# Global configuration instance - Load from default config file
+config = BK25Config("config/bk25_config.json")
 
 # Convenience functions
 def get_config() -> BK25Config:
