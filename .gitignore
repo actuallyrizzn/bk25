@@ -182,3 +182,20 @@ logs/
 *.log
 .env.local
 .env.production
+
+# Testing and Development
+archive/testing/
+test_results/
+.benchmarks/
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+pytest.ini
+requirements-dev.txt
+run_tests.py
+setup_dev.py
+run.py
+
+# Phase status files (temporary)
+PHASE*.md

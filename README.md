@@ -77,6 +77,24 @@ BK25 embodies an **anti-enterprise** philosophy:
 - **PWA Support**: Progressive Web App with offline capabilities
 - **Mobile Responsive**: Works on all device sizes
 
+## 🏗️ Project Structure
+
+The project has been cleaned up for better maintainability:
+
+```
+bk25/
+├── src/                    # Core application source code
+├── tests/                  # Test suite (unit, integration, e2e, API)
+├── docs/                   # Project documentation
+├── web/                    # Web interface
+├── personas/               # Persona definitions
+├── data/                   # Application data
+├── docker/                 # Docker configuration
+├── archive/                # Archived files and testing artifacts
+│   └── testing/           # Testing tools, results, and temporary files
+└── requirements.txt        # Production dependencies
+```
+
 ## 🏗️ Architecture
 
 ### Core Components
@@ -112,6 +130,33 @@ bk25/
 4. **Code Generation**: Platform-specific script generation with LLM integration
 5. **Script Execution**: Safe execution with monitoring and safety policies
 6. **Response Delivery**: Formatted response with generated artifacts and execution results
+
+## 🧪 Testing
+
+The project includes a comprehensive test suite:
+
+- **Unit Tests**: Core component testing
+- **Integration Tests**: Component interaction testing  
+- **End-to-End Tests**: Full workflow testing
+- **API Tests**: FastAPI endpoint testing
+
+### Running Tests
+
+```bash
+# Run all tests
+python -m pytest tests/ -v
+
+# Run specific test types
+python -m pytest tests/unit/ -v      # Unit tests only
+python -m pytest tests/api/ -v       # API tests only
+python -m pytest tests/integration/ -v # Integration tests only
+python -m pytest tests/e2e/ -v       # End-to-end tests only
+
+# Run with coverage
+python -m pytest --cov=src tests/ -v
+```
+
+**Note**: Development dependencies and testing tools are archived in `archive/testing/` for reference.
 
 ## 🚀 Quick Start
 
