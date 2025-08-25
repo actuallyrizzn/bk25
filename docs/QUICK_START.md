@@ -15,19 +15,46 @@ python -m venv venv
 venv\Scripts\activate  # Windows
 # source venv/bin/activate  # macOS/Linux
 
-# Install & run
+# Install dependencies
 pip install -r requirements.txt
-python src/main.py
+
+# Configure BK25 (optional)
+cp config/bk25_config.json.example config/bk25_config.json
+# Edit config/bk25_config.json with your preferences
+
+# Run the server
+python -m src.main
 ```
 
 ### 2. Open Browser
-Navigate to: `http://localhost:8000`
+Navigate to: `http://localhost:3003`
 
 ### 3. Start Automating!
 - **Select Persona**: Choose your AI assistant
 - **Pick Channel**: Select your target platform
 - **Choose Platform**: PowerShell, AppleScript, or Bash
 - **Describe Goal**: "Help me backup my Documents folder"
+
+---
+
+## ⚙️ Configuration
+
+### LLM Settings
+BK25 supports multiple LLM providers:
+- **Ollama** (default): Local models, no API keys needed
+- **OpenAI**: GPT-4, GPT-3.5 with API key
+- **Anthropic**: Claude models with API key
+- **Google**: Gemini models with API key
+- **Custom**: Your own API endpoints
+
+### Quick Configuration
+1. Click the ⚙️ **Settings** button in the web interface
+2. Select your preferred LLM provider
+3. Enter API keys and model settings
+4. Test the connection
+5. Save your configuration
+
+**Note**: Settings are automatically saved to `config/bk25_config.json`
 
 ---
 

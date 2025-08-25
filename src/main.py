@@ -10,6 +10,7 @@ From Peter Swimm (original Botkit PM) and the Toilville team
 
 import os
 import uvicorn
+import time
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -23,44 +24,33 @@ from src.core.persona_manager import PersonaManager
 from src.core.channel_manager import ChannelManager
 from src.config import config
 
-# Initialize FastAPI app
-app = FastAPI(
-    title="BK25 - Multi-Persona Channel Simulator",
-    description="Generate enterprise automation without enterprise complexity",
-    version="1.0.0",
-    docs_url="/docs",
-    redoc_url="/redoc"
-)
+# FastAPI app will be initialized after the lifespan function
 
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Configure appropriately for production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Settings management endpoints will be defined after the app is created
 
-# Mount static files (web interface)
-web_path = Path(__file__).parent.parent / "web"
-if web_path.exists():
-    app.mount("/web", StaticFiles(directory=str(web_path), html=True), name="web")
+
 
 # Global BK25 instance
 bk25: Optional[BK25Core] = None
 
-@app.on_event("startup")
-async def startup_event():
-    """Initialize BK25 on startup"""
+# Modern lifespan event handler (replaces deprecated on_event)
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for BK25 startup and shutdown"""
     global bk25
     
+    # Startup
     try:
+        print("[STARTUP] BK25 Python Edition starting up...")
+        
         # Initialize BK25 core
         bk25 = BK25Core({
             "ollama_url": os.getenv("OLLAMA_URL", "http://localhost:11434"),
             "model": os.getenv("BK25_MODEL", "llama3.1:8b"),
             "port": int(os.getenv("PORT", "8000")),
-            "personas_path": str(config.personas_path)
+            "personas_path": str(config.paths.personas_path)
         })
         
         await bk25.initialize()
@@ -68,7 +58,6 @@ async def startup_event():
         # Start execution monitoring system
         await bk25.start_execution_monitoring()
         
-        print("[STARTUP] BK25 Python Edition starting up...")
         print("[STATUS] Migration Status: Phase 5 - Script Execution & Monitoring")
         print(f"[PERSONAS] Personas loaded: {len(bk25.persona_manager.get_all_personas())}")
         print(f"[CHANNELS] Channels available: {len(bk25.channel_manager.get_all_channels())}")
@@ -76,11 +65,223 @@ async def startup_event():
         print(f"[LLM] LLM providers: {len(bk25.llm_manager.get_available_providers())} configured")
         print(f"[EXEC] Script execution: available with monitoring")
         
-    except HTTPException:
-        raise
     except Exception as error:
         print(f"[ERROR] Failed to initialize BK25: {error}")
         raise
+    
+    yield
+    
+    # Shutdown
+    try:
+        if bk25:
+            print("[SHUTDOWN] Shutting down BK25...")
+            await bk25.shutdown_execution_monitoring()
+            print("[SHUTDOWN] BK25 shutdown complete")
+    except Exception as error:
+        print(f"[ERROR] Error during shutdown: {error}")
+
+# Update FastAPI app to use lifespan
+app = FastAPI(
+    title="BK25 - Multi-Persona Channel Simulator",
+    description="Generate enterprise automation without enterprise complexity",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    lifespan=lifespan
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=config.server.cors_origins or ["*"],  # Use config or default to all
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Mount static files (web interface)
+web_path = Path(__file__).parent.parent / "web"
+print(f"[DEBUG] Web path: {web_path}")
+print(f"[DEBUG] Web path exists: {web_path.exists()}")
+
+if web_path.exists():
+    print(f"[DEBUG] Mounting web interface at /web")
+    app.mount("/web", StaticFiles(directory=str(web_path), html=True), name="web")
+    
+    # Serve the main web interface at root
+    @app.get("/")
+    async def root():
+        """Serve the main BK25 web interface"""
+        from fastapi.responses import FileResponse
+        print(f"[DEBUG] Serving root route, file: {web_path / 'index.html'}")
+        return FileResponse(str(web_path / "index.html"))
+    
+    # Alternative: redirect to web interface
+    @app.get("/app")
+    async def app_redirect():
+        """Redirect to the main application"""
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url="/web/")
+    
+    # Simple info route
+    @app.get("/info")
+    async def info():
+        """Get basic app information"""
+        return {
+            "app": "BK25 - Multi-Persona Channel Simulator",
+            "version": "1.0.0",
+            "status": "running",
+            "web_interface": "/web/",
+            "health": "/health"
+        }
+
+# Settings management endpoints
+@app.get("/api/settings")
+async def get_settings():
+    """Get current LLM settings"""
+    try:
+        # Get settings from the configuration system
+        return config.get_llm_settings()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error getting settings: {str(e)}")
+
+@app.post("/api/settings")
+async def save_settings(settings: dict):
+    """Save LLM settings"""
+    try:
+        # Validate required fields based on provider
+        provider = settings.get("provider")
+        if not provider:
+            raise HTTPException(status_code=400, detail="Provider is required")
+        
+        if provider == "ollama":
+            if not settings.get("ollama", {}).get("url"):
+                raise HTTPException(status_code=400, detail="Ollama URL is required")
+            if not settings.get("ollama", {}).get("model"):
+                raise HTTPException(status_code=400, detail="Ollama model is required")
+        elif provider in ["openai", "anthropic", "google"]:
+            provider_names = {"openai": "OpenAI", "anthropic": "Anthropic", "google": "Google"}
+            provider_name = provider_names.get(provider, provider.title())
+            if not settings.get(provider, {}).get("apiKey"):
+                raise HTTPException(status_code=400, detail=f"{provider_name} API key is required")
+            if not settings.get(provider, {}).get("model"):
+                raise HTTPException(status_code=400, detail=f"{provider_name} model is required")
+        elif provider == "custom":
+            if not settings.get("custom", {}).get("url"):
+                raise HTTPException(status_code=400, detail="Custom API URL is required")
+            if not settings.get("custom", {}).get("apiKey"):
+                raise HTTPException(status_code=400, detail="Custom API key is required")
+        
+        # Save settings to the configuration system
+        config.update_llm_settings(settings)
+        print(f"[INFO] Settings updated: {provider} provider configured")
+        
+        return {"message": "Settings saved successfully", "provider": provider}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error saving settings: {str(e)}")
+
+@app.post("/api/settings/test")
+async def test_connection(settings: dict):
+    """Test LLM connection with current settings"""
+    try:
+        provider = settings.get("provider")
+        if not provider:
+            raise HTTPException(status_code=400, detail="Provider is required")
+        
+        start_time = time.time()
+        
+        if provider == "ollama":
+            # Test Ollama connection
+            ollama_settings = settings.get("ollama", {})
+            url = ollama_settings.get("url", "http://localhost:11434")
+            model = ollama_settings.get("model", "llama3.1:8b")
+            
+            import httpx
+            async with httpx.AsyncClient() as client:
+                try:
+                    response = await client.get(f"{url}/api/tags", timeout=10)
+                    if response.status_code == 200:
+                        models = response.json()
+                        # Check if the specified model is available
+                        available_models = [model['name'] for model in models.get('models', [])]
+                        if model in available_models:
+                            response_time = int((time.time() - start_time) * 1000)
+                            return {
+                                "success": True,
+                                "model": model,
+                                "responseTime": response_time,
+                                "availableModels": available_models,
+                                "message": f"Successfully connected to Ollama at {url}"
+                            }
+                        else:
+                            return {
+                                "success": False,
+                                "error": f"Model '{model}' not found. Available models: {', '.join(available_models)}",
+                                "message": f"Model '{model}' not found in available models"
+                            }
+                    else:
+                        return {"success": False, "error": f"Ollama server returned status {response.status_code}", "message": "Ollama server error"}
+                except httpx.ConnectError:
+                    return {"success": False, "error": "Cannot connect to Ollama server. Is it running?", "message": "Connection failed"}
+                except httpx.TimeoutException:
+                    return {"success": False, "error": "Connection timeout. Check if Ollama is running and accessible.", "message": "Connection timeout"}
+                except Exception as e:
+                    return {"success": False, "error": f"Connection error: {str(e)}", "message": "Unexpected error"}
+        
+        elif provider in ["openai", "anthropic", "google"]:
+            # For now, just validate the API key format
+            provider_settings = settings.get(provider, {})
+            api_key = provider_settings.get("apiKey", "")
+            provider_names = {"openai": "OpenAI", "anthropic": "Anthropic", "google": "Google"}
+            provider_name = provider_names.get(provider, provider.title())
+            
+            if not api_key or len(api_key) < 10:
+                return {"success": False, "error": f"Invalid {provider_name} API key format", "message": f"API key validation failed for {provider_name}"}
+            
+            # In a real implementation, you'd make a test API call
+            response_time = int((time.time() - start_time) * 1000)
+            return {
+                "success": True,
+                "model": provider_settings.get("model", "unknown"),
+                "responseTime": response_time,
+                "message": f"{provider_name} API key format validated. Test API call not implemented yet."
+            }
+        
+        elif provider == "custom":
+            # Validate custom API URL format
+            custom_settings = settings.get("custom", {})
+            url = custom_settings.get("url", "")
+            if not url or not url.startswith(("http://", "https://")):
+                return {"success": False, "error": "Invalid custom API URL format", "message": "URL validation failed"}
+            
+            response_time = int((time.time() - start_time) * 1000)
+            return {
+                "success": True,
+                "model": custom_settings.get("model", "custom"),
+                "responseTime": response_time,
+                "message": "Custom API URL format validated. Test API call not implemented yet."
+            }
+        
+        else:
+            raise HTTPException(status_code=400, detail=f"Unsupported provider: {provider}")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error testing connection: {str(e)}")
+
+# Debug route to test routing
+@app.get("/debug")
+async def debug():
+    """Debug route to test routing"""
+    return {
+        "message": "Debug route working",
+        "web_path": str(web_path),
+        "web_exists": web_path.exists(),
+        "files": [f.name for f in web_path.iterdir()] if web_path.exists() else []
+    }
 
 @app.get("/health")
 async def health_check():
@@ -841,23 +1042,45 @@ async def get_running_tasks():
 
 # Custom 500 handler removed - let FastAPI handle 500 errors naturally
 
+# Catch-all route for debugging (only for non-API routes to avoid intercepting API tests)
+@app.get("/{path:path}")
+async def catch_all(path: str):
+    """Catch-all route for debugging"""
+    # Don't intercept API routes - let FastAPI handle 404s naturally
+    if path.startswith("api/"):
+        raise HTTPException(status_code=404, detail="API endpoint not found")
+    
+    return {
+        "message": f"Route not found: /{path}",
+        "available_routes": [
+            "/",
+            "/web/",
+            "/app",
+            "/info",
+            "/debug",
+            "/health",
+            "/docs"
+        ]
+    }
+
 if __name__ == "__main__":
     import argparse
     
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="BK25 Python Edition")
-    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
-    parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
-    parser.add_argument("--reload", action="store_true", help="Enable auto-reload")
+    parser.add_argument("--host", help="Host to bind to (overrides config)")
+    parser.add_argument("--port", type=int, help="Port to bind to (overrides config)")
+    parser.add_argument("--reload", action="store_true", help="Enable auto-reload (overrides config)")
     args = parser.parse_args()
     
-    # Get configuration from command line args or environment
-    host = args.host or os.getenv("BK25_HOST", "0.0.0.0")
-    port = args.port or int(os.getenv("BK25_PORT", "8000"))
-    reload = args.reload or os.getenv("BK25_RELOAD", "false").lower() == "true"
+    # Get configuration from config system, with command line overrides
+    host = args.host or config.server.host
+    port = args.port or config.server.port
+    reload = args.reload if args.reload is not None else config.server.reload
     
     print(f"[SERVER] Starting BK25 on {host}:{port}")
     print(f"[RELOAD] Reload mode: {reload}")
+    print(f"[CONFIG] Using configuration from: {config.paths.config_path}")
     print(f"[DOCS] API docs available at: http://{host}:{port}/docs")
     
     # Start the server

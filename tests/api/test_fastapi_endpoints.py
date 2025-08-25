@@ -834,7 +834,7 @@ class TestFastAPIEndpoints:
         data = response.json()
         # FastAPI returns a standard 404 format
         assert "detail" in data
-        assert "Not Found" in data["detail"]
+        assert "API endpoint not found" in data["detail"]
 
     def test_500_handler(self, client, mock_bk25_core):
         """Test 500 error handler"""
@@ -860,6 +860,365 @@ class TestFastAPIEndpoints:
         assert "access-control-allow-origin" in response.headers
         assert "access-control-allow-methods" in response.headers
         assert "access-control-allow-headers" in response.headers
+
+    def test_get_settings(self, client):
+        """Test get settings endpoint"""
+        response = client.get("/api/settings")
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert "provider" in data
+        assert "ollama" in data
+        assert "openai" in data
+        assert "anthropic" in data
+        assert "google" in data
+        assert "custom" in data
+        assert "temperature" in data
+        assert "maxTokens" in data
+        assert "timeout" in data
+        
+        # Check default values
+        assert data["provider"] == "ollama"
+        assert data["ollama"]["url"] == "http://localhost:11434"
+        assert data["ollama"]["model"] == "llama3.1:8b"
+        assert data["temperature"] == 0.7
+        assert data["maxTokens"] == 2000
+        assert data["timeout"] == 60
+
+    def test_save_settings_ollama(self, client):
+        """Test save settings endpoint with Ollama provider"""
+        settings = {
+            "provider": "ollama",
+            "ollama": {
+                "url": "http://localhost:11435",
+                "model": "llama3.2:7b"
+            },
+            "temperature": 0.8,
+            "maxTokens": 1500,
+            "timeout": 90
+        }
+        
+        response = client.post("/api/settings", json=settings)
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert data["message"] == "Settings saved successfully"
+        assert data["provider"] == "ollama"
+        
+        # Verify settings were saved by getting them again
+        response = client.get("/api/settings")
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert data["provider"] == "ollama"
+        assert data["ollama"]["url"] == "http://localhost:11435"
+        assert data["ollama"]["model"] == "llama3.2:7b"
+        assert data["temperature"] == 0.8
+        assert data["maxTokens"] == 1500
+        assert data["timeout"] == 90
+
+    def test_save_settings_openai(self, client):
+        """Test save settings endpoint with OpenAI provider"""
+        settings = {
+            "provider": "openai",
+            "openai": {
+                "apiKey": "sk-test123456789",
+                "model": "gpt-4-turbo",
+                "baseUrl": "https://api.openai.com/v1"
+            },
+            "temperature": 0.5,
+            "maxTokens": 3000
+        }
+        
+        response = client.post("/api/settings", json=settings)
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert data["message"] == "Settings saved successfully"
+        assert data["provider"] == "openai"
+        
+        # Verify settings were saved
+        response = client.get("/api/settings")
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert data["provider"] == "openai"
+        assert data["openai"]["apiKey"] == "sk-test123456789"
+        assert data["openai"]["model"] == "gpt-4-turbo"
+        assert data["temperature"] == 0.5
+        assert data["maxTokens"] == 3000
+
+    def test_save_settings_anthropic(self, client):
+        """Test save settings endpoint with Anthropic provider"""
+        settings = {
+            "provider": "anthropic",
+            "anthropic": {
+                "apiKey": "sk-ant-test123456789",
+                "model": "claude-3-opus",
+                "baseUrl": "https://api.anthropic.com"
+            }
+        }
+        
+        response = client.post("/api/settings", json=settings)
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert data["message"] == "Settings saved successfully"
+        assert data["provider"] == "anthropic"
+
+    def test_save_settings_google(self, client):
+        """Test save settings endpoint with Google provider"""
+        settings = {
+            "provider": "google",
+            "google": {
+                "apiKey": "AIza-test123456789",
+                "model": "gemini-1.5-flash"
+            }
+        }
+        
+        response = client.post("/api/settings", json=settings)
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert data["message"] == "Settings saved successfully"
+        assert data["provider"] == "google"
+
+    def test_save_settings_custom(self, client):
+        """Test save settings endpoint with Custom provider"""
+        settings = {
+            "provider": "custom",
+            "custom": {
+                "url": "https://api.custom-llm.com/v1",
+                "apiKey": "custom-test-key",
+                "model": "custom-model"
+            }
+        }
+        
+        response = client.post("/api/settings", json=settings)
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert data["message"] == "Settings saved successfully"
+        assert data["provider"] == "custom"
+
+    def test_save_settings_missing_provider(self, client):
+        """Test save settings endpoint with missing provider"""
+        settings = {
+            "temperature": 0.5
+        }
+        
+        response = client.post("/api/settings", json=settings)
+        assert response.status_code == 400
+        
+        data = response.json()
+        assert "detail" in data
+        assert "Provider is required" in data["detail"]
+
+    def test_save_settings_ollama_missing_url(self, client):
+        """Test save settings endpoint with Ollama provider missing URL"""
+        settings = {
+            "provider": "ollama",
+            "ollama": {
+                "model": "llama3.1:8b"
+            }
+        }
+        
+        response = client.post("/api/settings", json=settings)
+        assert response.status_code == 400
+        
+        data = response.json()
+        assert "detail" in data
+        assert "Ollama URL is required" in data["detail"]
+
+    def test_save_settings_ollama_missing_model(self, client):
+        """Test save settings endpoint with Ollama provider missing model"""
+        settings = {
+            "provider": "ollama",
+            "ollama": {
+                "url": "http://localhost:11434"
+            }
+        }
+        
+        response = client.post("/api/settings", json=settings)
+        assert response.status_code == 400
+        
+        data = response.json()
+        assert "detail" in data
+        assert "Ollama model is required" in data["detail"]
+
+    def test_save_settings_openai_missing_api_key(self, client):
+        """Test save settings endpoint with OpenAI provider missing API key"""
+        settings = {
+            "provider": "openai",
+            "openai": {
+                "model": "gpt-4"
+            }
+        }
+        
+        response = client.post("/api/settings", json=settings)
+        assert response.status_code == 400
+        
+        data = response.json()
+        assert "detail" in data
+        assert "OpenAI API key is required" in data["detail"]
+
+    def test_save_settings_openai_missing_model(self, client):
+        """Test save settings endpoint with OpenAI provider missing model"""
+        settings = {
+            "provider": "openai",
+            "openai": {
+                "apiKey": "sk-test123"
+            }
+        }
+        
+        response = client.post("/api/settings", json=settings)
+        assert response.status_code == 400
+        
+        data = response.json()
+        assert "detail" in data
+        assert "OpenAI model is required" in data["detail"]
+
+    def test_save_settings_anthropic_missing_api_key(self, client):
+        """Test save settings endpoint with Anthropic provider missing API key"""
+        settings = {
+            "provider": "anthropic",
+            "anthropic": {
+                "model": "claude-3-sonnet"
+            }
+        }
+        
+        response = client.post("/api/settings", json=settings)
+        assert response.status_code == 400
+        
+        data = response.json()
+        assert "detail" in data
+        assert "Anthropic API key is required" in data["detail"]
+
+    def test_save_settings_google_missing_api_key(self, client):
+        """Test save settings endpoint with Google provider missing API key"""
+        settings = {
+            "provider": "google",
+            "google": {
+                "model": "gemini-1.5-pro"
+            }
+        }
+        
+        response = client.post("/api/settings", json=settings)
+        assert response.status_code == 400
+        
+        data = response.json()
+        assert "detail" in data
+        assert "Google API key is required" in data["detail"]
+
+    def test_save_settings_custom_missing_url(self, client):
+        """Test save settings endpoint with Custom provider missing URL"""
+        settings = {
+            "provider": "custom",
+            "custom": {
+                "apiKey": "custom-key"
+            }
+        }
+        
+        response = client.post("/api/settings", json=settings)
+        assert response.status_code == 400
+        
+        data = response.json()
+        assert "detail" in data
+        assert "Custom API URL is required" in data["detail"]
+
+    def test_save_settings_custom_missing_api_key(self, client):
+        """Test save settings endpoint with Custom provider missing API key"""
+        settings = {
+            "provider": "custom",
+            "custom": {
+                "url": "https://api.custom.com"
+            }
+        }
+        
+        response = client.post("/api/settings", json=settings)
+        assert response.status_code == 400
+        
+        data = response.json()
+        assert "detail" in data
+        assert "Custom API key is required" in data["detail"]
+
+    def test_test_connection_endpoint(self, client):
+        """Test test connection endpoint"""
+        # Test with Ollama (default provider)
+        response = client.post("/api/settings/test", json={"provider": "ollama"})
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert "success" in data
+        assert "message" in data
+        
+        # Test with OpenAI
+        response = client.post("/api/settings/test", json={"provider": "openai"})
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert "success" in data
+        assert "message" in data
+
+    def test_test_connection_invalid_provider(self, client):
+        """Test test connection endpoint with invalid provider"""
+        response = client.post("/api/settings/test", json={"provider": "invalid"})
+        assert response.status_code == 400
+        
+        data = response.json()
+        assert "detail" in data
+        assert "Unsupported provider" in data["detail"]
+
+    def test_test_connection_missing_provider(self, client):
+        """Test test connection endpoint with missing provider"""
+        response = client.post("/api/settings/test", json={})
+        assert response.status_code == 400
+        
+        data = response.json()
+        assert "detail" in data
+        assert "Provider is required" in data["detail"]
+
+    def test_settings_persistence(self, client):
+        """Test that settings are persisted across requests"""
+        # Set initial settings
+        initial_settings = {
+            "provider": "openai",
+            "openai": {
+                "apiKey": "sk-persist-test",
+                "model": "gpt-4"
+            }
+        }
+        
+        response = client.post("/api/settings", json=initial_settings)
+        assert response.status_code == 200
+        
+        # Get settings to verify they were saved
+        response = client.get("/api/settings")
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert data["provider"] == "openai"
+        assert data["openai"]["apiKey"] == "sk-persist-test"
+        
+        # Update settings
+        updated_settings = {
+            "provider": "anthropic",
+            "anthropic": {
+                "apiKey": "sk-ant-persist-test",
+                "model": "claude-3-sonnet"
+            }
+        }
+        
+        response = client.post("/api/settings", json=updated_settings)
+        assert response.status_code == 200
+        
+        # Get settings again to verify they were updated
+        response = client.get("/api/settings")
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert data["provider"] == "anthropic"
+        assert data["anthropic"]["apiKey"] == "sk-ant-persist-test"
 
     def test_api_documentation(self, client):
         """Test API documentation endpoints"""

@@ -10,18 +10,19 @@
 
 1. [Overview](#overview)
 2. [Authentication](#authentication)
-3. [Base URL & Endpoints](#base-url--endpoints)
-4. [Response Formats](#response-formats)
-5. [Error Handling](#error-handling)
-6. [Core Endpoints](#core-endpoints)
-7. [Persona Management](#persona-management)
-8. [Channel Management](#channel-management)
-9. [Chat & Generation](#chat--generation)
-10. [Script Execution](#script-execution)
-11. [System & Status](#system--status)
-12. [Examples](#examples)
-13. [Rate Limiting](#rate-limiting)
-14. [Webhooks](#webhooks)
+3. [Configuration](#configuration)
+4. [Base URL & Endpoints](#base-url--endpoints)
+5. [Response Formats](#response-formats)
+6. [Error Handling](#error-handling)
+7. [Core Endpoints](#core-endpoints)
+8. [Persona Management](#persona-management)
+9. [Channel Management](#channel-management)
+10. [Chat & Generation](#chat--generation)
+11. [Script Execution](#script-execution)
+12. [System & Status](#system--status)
+13. [Examples](#examples)
+14. [Rate Limiting](#rate-limiting)
+15. [Webhooks](#webhooks)
 
 ---
 
@@ -64,11 +65,38 @@ X-API-Key: YOUR_API_KEY
 
 ---
 
+## ⚙️ Configuration
+
+### LLM Settings Endpoints
+
+BK25 provides API endpoints for managing LLM configuration:
+
+- **GET** `/api/settings` - Retrieve current LLM settings
+- **POST** `/api/settings` - Save new LLM settings
+- **POST** `/api/settings/test` - Test LLM connection
+
+### Configuration Priority
+
+1. **Command Line Arguments** (highest priority)
+2. **Environment Variables**
+3. **Configuration File** (`config/bk25_config.json`)
+4. **Default Values** (lowest priority)
+
+### Environment Variables
+
+Key environment variables for configuration:
+- `LLM_PROVIDER` - LLM provider (ollama, openai, anthropic, google, custom)
+- `BK25_PORT` - Server port (default: 3003)
+- `BK25_HOST` - Server host (default: 0.0.0.0)
+- `BK25_RELOAD` - Enable auto-reload (default: true)
+
+---
+
 ## 🌍 Base URL & Endpoints
 
 ### Development
 ```
-http://localhost:8000
+http://localhost:3003
 ```
 
 ### Production
@@ -785,6 +813,90 @@ Get information about an LLM provider.
 }
 ```
 
+### Configuration Management
+
+#### GET /api/settings
+Get current LLM configuration settings.
+
+**Response:**
+```json
+{
+    "provider": "ollama",
+    "ollama": {
+        "url": "http://localhost:11434",
+        "model": "llama3.1:8b"
+    },
+    "openai": {
+        "apiKey": "",
+        "model": "gpt-4o"
+    },
+    "anthropic": {
+        "apiKey": "",
+        "model": "claude-3-5-sonnet"
+    },
+    "google": {
+        "apiKey": "",
+        "model": "gemini-1.5-pro"
+    },
+    "custom": {
+        "url": "",
+        "apiKey": "",
+        "model": ""
+    },
+    "temperature": 0.7,
+    "maxTokens": 2000,
+    "timeout": 60
+}
+```
+
+#### POST /api/settings
+Update LLM configuration settings.
+
+**Request Body:**
+```json
+{
+    "provider": "openai",
+    "openai": {
+        "apiKey": "sk-your-api-key-here",
+        "model": "gpt-4o"
+    },
+    "temperature": 0.8,
+    "maxTokens": 4000
+}
+```
+
+**Response:**
+```json
+{
+    "message": "Settings saved successfully",
+    "provider": "openai"
+}
+```
+
+#### POST /api/settings/test
+Test LLM connection with current settings.
+
+**Request Body:**
+```json
+{
+    "provider": "ollama",
+    "ollama": {
+        "url": "http://localhost:11434",
+        "model": "llama3.1:8b"
+    }
+}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "model": "llama3.1:8b",
+    "responseTime": 245,
+    "availableModels": ["llama3.1:8b", "mistral:7b", "codellama:7b"]
+}
+```
+
 ---
 
 ## 📚 Examples
@@ -793,7 +905,7 @@ Get information about an LLM provider.
 
 #### 1. Start Chat
 ```bash
-curl -X POST "http://localhost:8000/api/chat" \
+curl -X POST "http://localhost:3003/api/chat" \
   -H "Content-Type: application/json" \
   -d '{
     "message": "Help me create a PowerShell script to backup files",
@@ -803,7 +915,7 @@ curl -X POST "http://localhost:8000/api/chat" \
 
 #### 2. Generate Script
 ```bash
-curl -X POST "http://localhost:8000/api/generate/script" \
+curl -X POST "http://localhost:3003/api/generate/script" \
   -H "Content-Type: application/json" \
   -d '{
     "prompt": "Create a PowerShell script to backup Documents folder",
@@ -813,7 +925,7 @@ curl -X POST "http://localhost:8000/api/generate/script" \
 
 #### 3. Execute Script
 ```bash
-curl -X POST "http://localhost:8000/api/execute/script" \
+curl -X POST "http://localhost:3003/api/execute/script" \
   -H "Content-Type: application/json" \
   -d '{
     "script_content": "# Generated script content...",

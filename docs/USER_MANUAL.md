@@ -32,6 +32,17 @@
 - **Web browser** (Chrome, Firefox, Safari, Edge)
 - **Optional**: Ollama for local LLM support
 
+### Configuration
+BK25 comes pre-configured for Ollama but supports multiple LLM providers:
+
+1. **Copy the example configuration**:
+   ```bash
+   cp config/bk25_config.json.example config/bk25_config.json
+   ```
+
+2. **Edit the configuration file** with your preferred settings
+3. **Or use the web interface** to configure LLM settings dynamically
+
 ### Installation
 
 ```bash
@@ -52,15 +63,67 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Start the application
-python src/main.py
+python -m src.main
 ```
 
 ### First Launch
 
-1. **Open your browser** and navigate to `http://localhost:8000`
+1. **Open your browser** and navigate to `http://localhost:3003`
 2. **Welcome screen** will appear with the default Vanilla Chatbot persona
 3. **Select your preferences** for Persona, Channel, and Platform
 4. **Start chatting** about your automation needs
+
+---
+
+## ⚙️ Configuration
+
+### LLM Provider Settings
+
+BK25 supports multiple LLM providers, each with different capabilities:
+
+#### **Ollama (Default)**
+- **Best for**: Local development, privacy-focused users
+- **Setup**: Install Ollama and download models
+- **Cost**: Free (local resources)
+- **Models**: Llama, Mistral, CodeLlama, and more
+
+#### **OpenAI**
+- **Best for**: Production use, advanced reasoning
+- **Setup**: Get API key from OpenAI
+- **Cost**: Pay-per-token
+- **Models**: GPT-4, GPT-3.5-turbo
+
+#### **Anthropic (Claude)**
+- **Best for**: Complex reasoning, safety-focused
+- **Setup**: Get API key from Anthropic
+- **Cost**: Pay-per-token
+- **Models**: Claude-3-5-Sonnet, Claude-3-Haiku
+
+#### **Google (Gemini)**
+- **Best for**: Multimodal tasks, Google ecosystem
+- **Setup**: Get API key from Google AI Studio
+- **Cost**: Pay-per-token
+- **Models**: Gemini-1.5-Pro, Gemini-1.5-Flash
+
+#### **Custom API**
+- **Best for**: Self-hosted models, specialized APIs
+- **Setup**: Configure your own endpoint
+- **Cost**: Varies
+- **Models**: Any compatible API
+
+### Configuration Methods
+
+1. **Configuration File**: Edit `config/bk25_config.json`
+2. **Environment Variables**: Set system environment variables
+3. **Web Interface**: Use the Settings modal in the UI
+4. **Command Line**: Override settings when starting the server
+
+### Advanced Settings
+
+- **Temperature**: Controls creativity (0.0 = focused, 2.0 = creative)
+- **Max Tokens**: Limits response length
+- **Timeout**: Request timeout in seconds
+- **CORS Origins**: Allowed web origins for security
 
 ---
 

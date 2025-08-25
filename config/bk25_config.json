@@ -1,0 +1,37 @@
+{
+  "llm": {
+    "provider": "anthropic",
+    "ollama_url": "http://localhost:11434",
+    "ollama_model": "llama3.1:8b",
+    "openai_api_key": "",
+    "openai_model": "gpt-4o",
+    "openai_base_url": "https://api.openai.com/v1",
+    "anthropic_api_key": "new-key",
+    "anthropic_model": "claude-3-sonnet",
+    "anthropic_base_url": "https://api.anthropic.com",
+    "google_api_key": "",
+    "google_model": "gemini-1.5-pro",
+    "custom_api_url": "",
+    "custom_api_key": "",
+    "custom_model": "",
+    "temperature": 0.5,
+    "max_tokens": 3000,
+    "timeout": 60
+  },
+  "server": {
+    "host": "0.0.0.0",
+    "port": 3003,
+    "reload": true,
+    "secret_key": "your-secret-key-here-change-this-in-production",
+    "cors_origins": null
+  },
+  "database": {
+    "url": "sqlite:///./data/bk25.db",
+    "echo": false
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "./logs/bk25.log",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  }
+}

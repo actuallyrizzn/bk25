@@ -190,10 +190,11 @@ python src/main.py
 
 ### Usage
 
-1. **Open Browser**: Navigate to `http://localhost:8000`
-2. **Select Configuration**: Choose Persona, Channel, and Platform
-3. **Start Conversation**: Describe your automation needs
-4. **Get Code**: Receive generated scripts with documentation
+1. **Configure BK25** (optional): Copy `config/bk25_config.json.example` to `config/bk25_config.json` and edit
+2. **Open Browser**: Navigate to `http://localhost:8000`
+3. **Select Configuration**: Choose Persona, Channel, and Platform
+4. **Start Conversation**: Describe your automation needs
+5. **Get Code**: Receive generated scripts with documentation
 
 ### Docker Deployment
 
@@ -233,6 +234,7 @@ This is the **Python Edition** of BK25, migrated from the original Node.js imple
 - **[Quick Start Guide](./docs/QUICK_START.md)**: Get up and running in 5 minutes
 - **[User Manual](./docs/USER_MANUAL.md)**: Comprehensive usage guide and examples
 - **[API Reference](./docs/API_REFERENCE.md)**: Complete REST API documentation
+- **[Configuration Guide](./docs/CONFIGURATION.md)**: How to configure BK25 settings
 - **[Credits & Acknowledgments](./CREDITS.md)**: Complete contributor information and acknowledgments
 - **[Project Audit](./docs/PROJECT_AUDIT.md)**: Complete documentation of the Node.js system
 - **[Migration Plan](./docs/PYTHON_MIGRATION_PLAN.md)**: Detailed migration roadmap and phases
@@ -247,11 +249,15 @@ We welcome contributions! Please see our [Contributing Guide](./docs/CONTRIBUTIN
 # Install dependencies
 pip install -r requirements.txt
 
+# Configure BK25 (optional)
+cp config/bk25_config.json.example config/bk25_config.json
+# Edit config/bk25_config.json with your preferences
+
 # Start development server with hot reload
-uvicorn src.main:app --reload --port 8000
+python -m src.main --reload
 
 # Run tests
-pytest
+python tests/run_tests.py --type all
 
 # Lint code
 flake8 src/
