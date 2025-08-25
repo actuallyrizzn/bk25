@@ -149,17 +149,19 @@
 </head>
 <body>
     <div class="container-fluid py-4">
-        <!-- Header -->
-        <div class="row mb-4">
-            <div class="col-12 text-center text-white">
-                <h1 class="display-3 fw-bold mb-2">🤖 BK25</h1>
-                <p class="lead mb-1">Generate enterprise automation without enterprise complexity</p>
-                <p class="text-white-50 fst-italic">"Agents for whomst?" - For humans who need automation that works.</p>
-                <button class="btn btn-outline-light position-absolute top-0 end-0 m-3" id="settings-btn">
-                    <i class="bi bi-gear"></i> Settings
-                </button>
-            </div>
-        </div>
+                 <!-- Header -->
+         <div class="row mb-3">
+             <div class="col-12 text-center text-white">
+                 <div class="d-flex align-items-center justify-content-center gap-3">
+                     <h2 class="h3 fw-bold mb-0">🤖 BK25</h2>
+                     <span class="small text-white-75">Generate enterprise automation without enterprise complexity</span>
+                     <span class="text-white-50 small fst-italic">"Agents for whomst?" - For humans who need automation that works.</span>
+                 </div>
+                 <button class="btn btn-outline-light btn-sm position-absolute top-0 end-0 m-2" id="settings-btn">
+                     <i class="bi bi-gear"></i> Settings
+                 </button>
+             </div>
+         </div>
         
         <!-- Main Content -->
         <div class="row g-4">
@@ -295,27 +297,44 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
-    <div class="modal fade" id="settings-modal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">LLM Settings</h5>
-                    <button type="button" class="btn-close" id="close-settings-modal"></button>
-                </div>
-                
-                <form id="settings-form">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label" for="llm-provider">LLM Provider</label>
-                            <select id="llm-provider" class="form-select">
-                                <option value="ollama">Ollama (Local)</option>
-                                <option value="openai">OpenAI</option>
-                                <option value="anthropic">Anthropic (Claude)</option>
-                                <option value="google">Google (Gemini)</option>
-                                <option value="custom">Custom API</option>
-                            </select>
-                        </div>
+         <!-- Settings Modal -->
+     <div class="modal fade" id="settings-modal" tabindex="-1">
+         <div class="modal-dialog modal-xl">
+             <div class="modal-content">
+                 <div class="modal-header">
+                     <h5 class="modal-title">BK25 Settings</h5>
+                     <button type="button" class="btn-close" id="close-settings-modal"></button>
+                 </div>
+                 
+                 <!-- Settings Tabs -->
+                 <ul class="nav nav-tabs" id="settings-tabs" role="tablist">
+                     <li class="nav-item" role="presentation">
+                         <button class="nav-link active" id="llm-tab" data-bs-toggle="tab" data-bs-target="#llm-settings" type="button" role="tab" aria-controls="llm-settings" aria-selected="true">
+                             <i class="bi bi-cpu"></i> LLM Settings
+                         </button>
+                     </li>
+                     <li class="nav-item" role="presentation">
+                         <button class="nav-link" id="channels-tab" data-bs-toggle="tab" data-bs-target="#channels-settings" type="button" role="tab" aria-controls="channels-settings" aria-selected="false">
+                             <i class="bi bi-hdd-network"></i> Channels
+                         </button>
+                     </li>
+                 </ul>
+                 
+                 <form id="settings-form">
+                     <div class="tab-content" id="settings-tab-content">
+                         <!-- LLM Settings Tab -->
+                         <div class="tab-pane fade show active" id="llm-settings" role="tabpanel" aria-labelledby="llm-tab">
+                             <div class="modal-body">
+                                 <div class="mb-3">
+                                     <label class="form-label" for="llm-provider">LLM Provider</label>
+                                     <select id="llm-provider" class="form-select">
+                                         <option value="ollama">Ollama (Local)</option>
+                                         <option value="openai">OpenAI</option>
+                                         <option value="anthropic">Anthropic (Claude)</option>
+                                         <option value="google">Google (Gemini)</option>
+                                         <option value="custom">Custom API</option>
+                                     </select>
+                                 </div>
                         
                         <div class="mb-3" id="ollama-settings">
                             <label class="form-label" for="ollama-url">Ollama URL</label>
@@ -392,19 +411,307 @@
                             <input type="number" id="timeout" class="form-control" min="10" max="300" value="60">
                         </div>
                         
-                        <div class="mb-3" id="connection-status" style="display: none;">
-                            <div class="alert alert-info">
-                                <span class="status-indicator" id="connection-indicator"></span>
-                                <span id="connection-message">Testing connection...</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" id="cancel-settings">Cancel</button>
-                        <button type="button" class="btn btn-info" id="test-connection">Test Connection</button>
-                        <button type="submit" class="btn btn-primary">Save Settings</button>
-                    </div>
+                                                 <div class="mb-3" id="connection-status" style="display: none;">
+                             <div class="alert alert-info">
+                                 <span class="status-indicator" id="connection-indicator"></span>
+                                 <span id="connection-message">Testing connection...</span>
+                             </div>
+                         </div>
+                             </div>
+                         </div>
+                         
+                         <!-- Channels Settings Tab -->
+                         <div class="tab-pane fade" id="channels-settings" role="tabpanel" aria-labelledby="channels-tab">
+                             <div class="modal-body">
+                                 <div class="row">
+                                     <!-- Web Channel -->
+                                     <div class="col-md-6 mb-4">
+                                         <div class="card">
+                                             <div class="card-header">
+                                                 <h6 class="mb-0"><i class="bi bi-globe"></i> Web Interface</h6>
+                                             </div>
+                                             <div class="card-body">
+                                                 <div class="mb-3">
+                                                     <label class="form-label">Status</label>
+                                                     <div class="d-flex align-items-center">
+                                                         <span class="status-indicator connected me-2"></span>
+                                                         <span class="text-success">Active</span>
+                                                     </div>
+                                                 </div>
+                                                 <div class="mb-3">
+                                                     <label class="form-label">Capabilities</label>
+                                                     <div class="small text-muted">
+                                                         • Text-based conversations<br>
+                                                         • Code generation<br>
+                                                         • Script execution<br>
+                                                         • File management
+                                                     </div>
+                                                 </div>
+                                                 <div class="mb-3">
+                                                     <label class="form-label">Artifact Types</label>
+                                                     <div class="small text-muted">
+                                                         • Automation scripts<br>
+                                                         • Documentation<br>
+                                                         • Configuration files
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     
+                                     <!-- Slack Channel -->
+                                     <div class="col-md-6 mb-4">
+                                         <div class="card">
+                                             <div class="card-header">
+                                                 <h6 class="mb-0"><i class="bi bi-slack"></i> Slack</h6>
+                                             </div>
+                                             <div class="card-body">
+                                                 <div class="mb-3">
+                                                     <label class="form-label">Status</label>
+                                                     <div class="form-check form-switch">
+                                                         <input class="form-check-input" type="checkbox" id="slack-enabled">
+                                                         <label class="form-check-label" for="slack-enabled">Enable Slack Integration</label>
+                                                     </div>
+                                                 </div>
+                                                 <div class="mb-3" id="slack-settings" style="display: none;">
+                                                     <label class="form-label" for="slack-token">Bot Token</label>
+                                                     <input type="password" id="slack-token" class="form-control" placeholder="xoxb-...">
+                                                     <div class="form-text">Your Slack bot token from Slack API</div>
+                                                 </div>
+                                                 <div class="mb-3" id="slack-settings" style="display: none;">
+                                                     <label class="form-label" for="slack-signing-secret">Signing Secret</label>
+                                                     <input type="password" id="slack-signing-secret" class="form-control" placeholder="...">
+                                                     <div class="form-text">Your Slack app signing secret</div>
+                                                 </div>
+                                                 <div class="mb-3">
+                                                     <label class="form-label">Capabilities</label>
+                                                     <div class="small text-muted">
+                                                         • Channel conversations<br>
+                                                         • Direct messages<br>
+                                                         • File sharing<br>
+                                                         • Threaded discussions
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     
+                                     <!-- Microsoft Teams Channel -->
+                                     <div class="col-md-6 mb-4">
+                                         <div class="card">
+                                             <div class="card-header">
+                                                 <h6 class="mb-0"><i class="bi bi-microsoft-teams"></i> Microsoft Teams</h6>
+                                             </div>
+                                             <div class="card-body">
+                                                 <div class="mb-3">
+                                                     <label class="form-label">Status</label>
+                                                     <div class="form-check form-switch">
+                                                         <input class="form-check-input" type="checkbox" id="teams-enabled">
+                                                         <label class="form-check-label" for="teams-enabled">Enable Teams Integration</label>
+                                                     </div>
+                                                 </div>
+                                                 <div class="mb-3" id="teams-settings" style="display: none;">
+                                                     <label class="form-label" for="teams-app-id">App ID</label>
+                                                     <input type="text" id="teams-app-id" class="form-control" placeholder="...">
+                                                 </div>
+                                                 <div class="mb-3" id="teams-settings" style="display: none;">
+                                                     <label class="form-label" for="teams-app-password">App Password</label>
+                                                     <input type="password" id="teams-app-password" class="form-control" placeholder="...">
+                                                 </div>
+                                                 <div class="mb-3">
+                                                     <label class="form-label">Capabilities</label>
+                                                     <div class="small text-muted">
+                                                         • Team channels<br>
+                                                         • Private chats<br>
+                                                         • File collaboration<br>
+                                                         • Meeting integration
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     
+                                     <!-- Discord Channel -->
+                                     <div class="col-md-6 mb-4">
+                                         <div class="card">
+                                             <div class="card-header">
+                                                 <h6 class="mb-0"><i class="bi bi-discord"></i> Discord</h6>
+                                             </div>
+                                             <div class="card-body">
+                                                 <div class="mb-3">
+                                                     <label class="form-label">Status</label>
+                                                     <div class="form-check form-switch">
+                                                         <input class="form-check-input" type="checkbox" id="discord-enabled">
+                                                         <label class="form-check-label" for="discord-enabled">Enable Discord Integration</label>
+                                                     </div>
+                                                 </div>
+                                                 <div class="mb-3" id="discord-settings" style="display: none;">
+                                                     <label class="form-label" for="discord-token">Bot Token</label>
+                                                     <input type="password" id="discord-token" class="form-control" placeholder="...">
+                                                 </div>
+                                                 <div class="mb-3">
+                                                     <label class="form-label">Capabilities</label>
+                                                     <div class="small text-muted">
+                                                         • Server channels<br>
+                                                         • Direct messages<br>
+                                                         • Voice channels<br>
+                                                         • Role-based access
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     
+                                     <!-- Twitch Channel -->
+                                     <div class="col-md-6 mb-4">
+                                         <div class="card">
+                                             <div class="card-header">
+                                                 <h6 class="mb-0"><i class="bi bi-twitch"></i> Twitch</h6>
+                                             </div>
+                                             <div class="card-body">
+                                                 <div class="mb-3">
+                                                     <label class="form-label">Status</label>
+                                                     <div class="form-check form-switch">
+                                                         <input class="form-check-input" type="checkbox" id="twitch-enabled">
+                                                         <label class="form-check-label" for="twitch-enabled">Enable Twitch Integration</label>
+                                                     </div>
+                                                 </div>
+                                                 <div class="mb-3" id="twitch-settings" style="display: none;">
+                                                     <label class="form-label" for="twitch-client-id">Client ID</label>
+                                                     <input type="text" id="twitch-client-id" class="form-control" placeholder="...">
+                                                 </div>
+                                                 <div class="mb-3" id="twitch-settings" style="display: none;">
+                                                     <label class="form-label" for="twitch-client-secret">Client Secret</label>
+                                                     <input type="password" id="twitch-client-secret" class="form-control" placeholder="...">
+                                                 </div>
+                                                 <div class="mb-3">
+                                                     <label class="form-label">Capabilities</label>
+                                                     <div class="small text-muted">
+                                                         • Chat moderation<br>
+                                                         • Stream alerts<br>
+                                                         • Viewer interaction<br>
+                                                         • Channel management
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     
+                                     <!-- WhatsApp Channel -->
+                                     <div class="col-md-6 mb-4">
+                                         <div class="card">
+                                             <div class="card-header">
+                                                 <h6 class="mb-0"><i class="bi bi-whatsapp"></i> WhatsApp</h6>
+                                             </div>
+                                             <div class="card-body">
+                                                 <div class="mb-3">
+                                                     <label class="form-label">Status</label>
+                                                     <div class="form-check form-switch">
+                                                         <input class="form-check-input" type="checkbox" id="whatsapp-enabled">
+                                                         <label class="form-check-label" for="whatsapp-enabled">Enable WhatsApp Integration</label>
+                                                     </div>
+                                                 </div>
+                                                 <div class="mb-3" id="whatsapp-settings" style="display: none;">
+                                                     <label class="form-label" for="whatsapp-phone">Phone Number</label>
+                                                     <input type="text" id="whatsapp-phone" class="form-control" placeholder="+1234567890">
+                                                 </div>
+                                                 <div class="mb-3" id="whatsapp-settings" style="display: none;">
+                                                     <label class="form-label" for="whatsapp-token">Access Token</label>
+                                                     <input type="password" id="whatsapp-token" class="form-control" placeholder="...">
+                                                 </div>
+                                                 <div class="mb-3">
+                                                     <label class="form-label">Capabilities</label>
+                                                     <div class="small text-muted">
+                                                         • Individual chats<br>
+                                                         • Group messages<br>
+                                                         • Media sharing<br>
+                                                         • Business API
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     
+                                     <!-- Apple Business Chat -->
+                                     <div class="col-md-6 mb-4">
+                                         <div class="card">
+                                             <div class="card-header">
+                                                 <h6 class="mb-0"><i class="bi bi-apple"></i> Apple Business Chat</h6>
+                                             </div>
+                                             <div class="card-body">
+                                                 <div class="mb-3">
+                                                     <label class="form-label">Status</label>
+                                                     <div class="form-check form-switch">
+                                                         <input class="form-check-input" type="checkbox" id="applechat-enabled">
+                                                         <label class="form-check-label" for="applechat-enabled">Enable Apple Business Chat</label>
+                                                     </div>
+                                                 </div>
+                                                 <div class="mb-3" id="applechat-settings" style="display: none;">
+                                                     <label class="form-label" for="applechat-business-id">Business ID</label>
+                                                     <input type="text" id="applechat-business-id" class="form-control" placeholder="...">
+                                                 </div>
+                                                 <div class="mb-3" id="applechat-settings" style="display: none;">
+                                                     <label class="form-label" for="applechat-cert">Certificate</label>
+                                                     <input type="file" id="applechat-cert" class="form-control" accept=".p12,.pem">
+                                                 </div>
+                                                 <div class="mb-3">
+                                                     <label class="form-label">Capabilities</label>
+                                                     <div class="small text-muted">
+                                                         • Customer support<br>
+                                                         • Rich messaging<br>
+                                                         • Apple Pay integration<br>
+                                                         • Business verification
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 
+                                 <!-- Channel Configuration -->
+                                 <div class="mt-4">
+                                     <h6><i class="bi bi-gear"></i> Global Channel Settings</h6>
+                                     <div class="row">
+                                         <div class="col-md-6">
+                                             <div class="mb-3">
+                                                 <label class="form-label" for="default-channel">Default Channel</label>
+                                                 <select id="default-channel" class="form-select">
+                                                     <option value="web">Web Interface</option>
+                                                     <option value="slack">Slack</option>
+                                                     <option value="teams">Microsoft Teams</option>
+                                                     <option value="discord">Discord</option>
+                                                     <option value="twitch">Twitch</option>
+                                                     <option value="whatsapp">WhatsApp</option>
+                                                     <option value="applechat">Apple Business Chat</option>
+                                                 </select>
+                                             </div>
+                                         </div>
+                                         <div class="col-md-6">
+                                             <div class="mb-3">
+                                                 <label class="form-label" for="channel-timeout">Channel Timeout (seconds)</label>
+                                                 <input type="number" id="channel-timeout" class="form-control" min="10" max="300" value="60">
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="mb-3">
+                                         <label class="form-label" for="channel-logging">Channel Logging Level</label>
+                                         <select id="channel-logging" class="form-select">
+                                             <option value="debug">Debug</option>
+                                             <option value="info">Info</option>
+                                             <option value="warning">Warning</option>
+                                             <option value="error">Error</option>
+                                         </select>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                     
+                     <div class="modal-footer">
+                         <button type="button" class="btn btn-secondary" id="cancel-settings">Cancel</button>
+                         <button type="button" class="btn btn-info" id="test-connection">Test Connection</button>
+                         <button type="submit" class="btn btn-primary">Save Settings</button>
+                     </div>
                 </form>
             </div>
         </div>
@@ -1014,9 +1321,12 @@
                 // Test connection handler
                 testBtn.addEventListener('click', (e) => this.testConnection(e));
                 
-                // Form submission
-                form.addEventListener('submit', (e) => this.handleSaveSettings(e));
-            }
+                                 // Form submission
+                 form.addEventListener('submit', (e) => this.handleSaveSettings(e));
+                 
+                 // Channel settings handlers
+                 this.setupChannelSettingsHandlers();
+             }
             
             toggleProviderSettings() {
                 const provider = document.getElementById('llm-provider').value;
@@ -1077,26 +1387,27 @@
                 };
             }
             
-            populateSettingsForm(settings) {
-                document.getElementById('llm-provider').value = settings.provider || 'ollama';
-                document.getElementById('ollama-url').value = settings.ollama?.url || 'http://localhost:11434';
-                document.getElementById('ollama-model').value = settings.ollama?.model || 'llama3.1:8b';
-                document.getElementById('openai-api-key').value = settings.openai?.apiKey || '';
-                document.getElementById('openai-model').value = settings.openai?.model || 'gpt-4o';
-                document.getElementById('anthropic-api-key').value = settings.anthropic?.apiKey || '';
-                document.getElementById('anthropic-model').value = settings.anthropic?.model || 'claude-3-5-sonnet';
-                document.getElementById('google-api-key').value = settings.google?.apiKey || '';
-                document.getElementById('google-model').value = settings.google?.model || 'gemini-1.5-pro';
-                document.getElementById('custom-api-url').value = settings.custom?.url || '';
-                document.getElementById('custom-api-key').value = settings.custom?.apiKey || '';
-                document.getElementById('custom-model').value = settings.custom?.model || '';
-                document.getElementById('temperature').value = settings.temperature || 0.7;
-                document.getElementById('temperature-value').textContent = settings.temperature || 0.7;
-                document.getElementById('max-tokens').value = settings.maxTokens || 2000;
-                document.getElementById('timeout').value = settings.timeout || 60;
-                
-                this.toggleProviderSettings();
-            }
+                         populateSettingsForm(settings) {
+                 document.getElementById('llm-provider').value = settings.provider || 'ollama';
+                 document.getElementById('ollama-url').value = settings.ollama?.url || 'http://localhost:11434';
+                 document.getElementById('ollama-model').value = settings.ollama?.model || 'llama3.1:8b';
+                 document.getElementById('openai-api-key').value = settings.openai?.apiKey || '';
+                 document.getElementById('openai-model').value = settings.openai?.model || 'gpt-4o';
+                 document.getElementById('anthropic-api-key').value = settings.anthropic?.apiKey || '';
+                 document.getElementById('anthropic-model').value = settings.anthropic?.model || 'claude-3-5-sonnet';
+                 document.getElementById('google-api-key').value = settings.google?.apiKey || '';
+                 document.getElementById('google-model').value = settings.google?.model || 'gemini-1.5-pro';
+                 document.getElementById('custom-api-url').value = settings.custom?.url || '';
+                 document.getElementById('custom-api-key').value = settings.custom?.apiKey || '';
+                 document.getElementById('custom-model').value = settings.custom?.model || '';
+                 document.getElementById('temperature').value = settings.temperature || 0.7;
+                 document.getElementById('temperature-value').textContent = settings.temperature || 0.7;
+                 document.getElementById('max-tokens').value = settings.maxTokens || 2000;
+                 document.getElementById('timeout').value = settings.timeout || 60;
+                 
+                 this.toggleProviderSettings();
+                 this.populateChannelSettingsForm(settings.channels || {});
+             }
             
             async testConnection(e) {
                 e.preventDefault();
@@ -1146,37 +1457,38 @@
                 }
             }
             
-            getSettingsFromForm() {
-                const provider = document.getElementById('llm-provider').value;
-                
-                return {
-                    provider: provider,
-                    ollama: {
-                        url: document.getElementById('ollama-url').value,
-                        model: document.getElementById('ollama-model').value
-                    },
-                    openai: {
-                        apiKey: document.getElementById('openai-api-key').value,
-                        model: document.getElementById('openai-model').value
-                    },
-                    anthropic: {
-                        apiKey: document.getElementById('anthropic-api-key').value,
-                        model: document.getElementById('anthropic-model').value
-                    },
-                    google: {
-                        apiKey: document.getElementById('google-api-key').value,
-                        model: document.getElementById('google-model').value
-                    },
-                    custom: {
-                        url: document.getElementById('custom-api-url').value,
-                        apiKey: document.getElementById('custom-api-key').value,
-                        model: document.getElementById('custom-model').value
-                    },
-                    temperature: parseFloat(document.getElementById('temperature').value),
-                    maxTokens: parseInt(document.getElementById('max-tokens').value),
-                    timeout: parseInt(document.getElementById('timeout').value)
-                };
-            }
+                         getSettingsFromForm() {
+                 const provider = document.getElementById('llm-provider').value;
+                 
+                 return {
+                     provider: provider,
+                     ollama: {
+                         url: document.getElementById('ollama-url').value,
+                         model: document.getElementById('ollama-model').value
+                     },
+                     openai: {
+                         apiKey: document.getElementById('openai-api-key').value,
+                         model: document.getElementById('openai-model').value
+                     },
+                     anthropic: {
+                         apiKey: document.getElementById('anthropic-api-key').value,
+                         model: document.getElementById('anthropic-model').value
+                     },
+                     google: {
+                         apiKey: document.getElementById('google-api-key').value,
+                         model: document.getElementById('google-model').value
+                     },
+                     custom: {
+                         url: document.getElementById('custom-api-url').value,
+                         apiKey: document.getElementById('custom-api-key').value,
+                         model: document.getElementById('custom-model').value
+                     },
+                     temperature: parseFloat(document.getElementById('temperature').value),
+                     maxTokens: parseInt(document.getElementById('max-tokens').value),
+                     timeout: parseInt(document.getElementById('timeout').value),
+                     channels: this.getChannelSettingsFromForm()
+                 };
+             }
             
             async handleSaveSettings(e) {
                 e.preventDefault();
@@ -1204,10 +1516,124 @@
                     }
                 } catch (error) {
                     console.error('Failed to save settings:', error);
-                    alert('Failed to save settings. Please try again.');
-                }
-            }
-        }
+                                         alert('Failed to save settings. Please try again.');
+                 }
+             }
+             
+             setupChannelSettingsHandlers() {
+                 // Channel enable/disable toggles
+                 const channelToggles = [
+                     'slack-enabled', 'teams-enabled', 'discord-enabled', 
+                     'twitch-enabled', 'whatsapp-enabled', 'applechat-enabled'
+                 ];
+                 
+                 channelToggles.forEach(channelId => {
+                     const toggle = document.getElementById(channelId);
+                     if (toggle) {
+                         toggle.addEventListener('change', (e) => {
+                             this.toggleChannelSettings(channelId, e.target.checked);
+                         });
+                     }
+                 });
+             }
+             
+             toggleChannelSettings(channelId, enabled) {
+                 const settingsDiv = document.getElementById(channelId.replace('-enabled', '-settings'));
+                 if (settingsDiv) {
+                     settingsDiv.style.display = enabled ? 'block' : 'none';
+                 }
+             }
+             
+             getChannelSettingsFromForm() {
+                 return {
+                     web: { enabled: true }, // Web is always enabled
+                     slack: {
+                         enabled: document.getElementById('slack-enabled')?.checked || false,
+                         token: document.getElementById('slack-token')?.value || '',
+                         signingSecret: document.getElementById('slack-signing-secret')?.value || ''
+                     },
+                     teams: {
+                         enabled: document.getElementById('teams-enabled')?.checked || false,
+                         appId: document.getElementById('teams-app-id')?.value || '',
+                         appPassword: document.getElementById('teams-app-password')?.value || ''
+                     },
+                     discord: {
+                         enabled: document.getElementById('discord-enabled')?.checked || false,
+                         token: document.getElementById('discord-token')?.value || ''
+                     },
+                     twitch: {
+                         enabled: document.getElementById('twitch-enabled')?.checked || false,
+                         clientId: document.getElementById('twitch-client-id')?.value || '',
+                         clientSecret: document.getElementById('twitch-client-secret')?.value || ''
+                     },
+                     whatsapp: {
+                         enabled: document.getElementById('whatsapp-enabled')?.checked || false,
+                         phone: document.getElementById('whatsapp-phone')?.value || '',
+                         token: document.getElementById('whatsapp-token')?.value || ''
+                     },
+                     applechat: {
+                         enabled: document.getElementById('applechat-enabled')?.checked || false,
+                         businessId: document.getElementById('applechat-business-id')?.value || '',
+                         certificate: document.getElementById('applechat-cert')?.files[0] || null
+                     },
+                     global: {
+                         defaultChannel: document.getElementById('default-channel')?.value || 'web',
+                         timeout: parseInt(document.getElementById('channel-timeout')?.value || '60'),
+                         loggingLevel: document.getElementById('channel-logging')?.value || 'info'
+                     }
+                 };
+             }
+             
+             populateChannelSettingsForm(channelSettings) {
+                 // Populate individual channel settings
+                 if (channelSettings.slack) {
+                     document.getElementById('slack-enabled').checked = channelSettings.slack.enabled || false;
+                     document.getElementById('slack-token').value = channelSettings.slack.token || '';
+                     document.getElementById('slack-signing-secret').value = channelSettings.slack.signingSecret || '';
+                     this.toggleChannelSettings('slack-enabled', channelSettings.slack.enabled || false);
+                 }
+                 
+                 if (channelSettings.teams) {
+                     document.getElementById('teams-enabled').checked = channelSettings.teams.enabled || false;
+                     document.getElementById('teams-app-id').value = channelSettings.teams.appId || '';
+                     document.getElementById('teams-app-password').value = channelSettings.teams.appPassword || '';
+                     this.toggleChannelSettings('teams-enabled', channelSettings.teams.enabled || false);
+                 }
+                 
+                 if (channelSettings.discord) {
+                     document.getElementById('discord-enabled').checked = channelSettings.discord.enabled || false;
+                     document.getElementById('discord-token').value = channelSettings.discord.token || '';
+                     this.toggleChannelSettings('discord-enabled', channelSettings.discord.enabled || false);
+                 }
+                 
+                 if (channelSettings.twitch) {
+                     document.getElementById('twitch-enabled').checked = channelSettings.twitch.enabled || false;
+                     document.getElementById('twitch-client-id').value = channelSettings.twitch.clientId || '';
+                     document.getElementById('twitch-client-secret').value = channelSettings.twitch.clientSecret || '';
+                     this.toggleChannelSettings('twitch-enabled', channelSettings.twitch.enabled || false);
+                 }
+                 
+                 if (channelSettings.whatsapp) {
+                     document.getElementById('whatsapp-enabled').checked = channelSettings.whatsapp.enabled || false;
+                     document.getElementById('whatsapp-phone').value = channelSettings.whatsapp.phone || '';
+                     document.getElementById('whatsapp-token').value = channelSettings.whatsapp.token || '';
+                     this.toggleChannelSettings('whatsapp-enabled', channelSettings.whatsapp.enabled || false);
+                 }
+                 
+                 if (channelSettings.applechat) {
+                     document.getElementById('applechat-enabled').checked = channelSettings.applechat.enabled || false;
+                     document.getElementById('applechat-business-id').value = channelSettings.applechat.businessId || '';
+                     this.toggleChannelSettings('applechat-enabled', channelSettings.applechat.enabled || false);
+                 }
+                 
+                 // Populate global channel settings
+                 if (channelSettings.global) {
+                     document.getElementById('default-channel').value = channelSettings.global.defaultChannel || 'web';
+                     document.getElementById('channel-timeout').value = channelSettings.global.timeout || 60;
+                     document.getElementById('channel-logging').value = channelSettings.global.loggingLevel || 'info';
+                 }
+             }
+         }
         
         // Global function for copy button
         window.copyScript = function(script) {
