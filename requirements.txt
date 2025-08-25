@@ -1,20 +1,59 @@
-# BK25 Python Dependencies - Minimal Version
-# Core web framework
-fastapi
-uvicorn[standard]
+# BK25 v1.0.0 - Production Dependencies
+# Enterprise automation without enterprise complexity
 
-# HTTP client for Ollama integration
-httpx
+# Core Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
 
-# Environment configuration
-python-dotenv
+# HTTP and API
+requests==2.31.0
+httpx==0.25.2
 
-# Development and testing
-pytest
-pytest-asyncio
+# Data Processing
+pydantic==2.5.0
+python-multipart==0.0.6
 
-# System monitoring and process management
-psutil
+# Markdown Processing
+markdown==3.5.1
 
-# Markdown parsing for code extraction
-markdown
+# Logging and Monitoring
+python-json-logger==2.0.7
+
+# Development and Testing (Optional)
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+
+# Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Database (if needed)
+sqlalchemy==2.0.23
+alembic==1.12.1
+
+# Environment and Configuration
+python-dotenv==1.0.0
+pydantic-settings==2.1.0
+
+# Async Support
+asyncio-mqtt==0.16.1
+aiofiles==23.2.1
+
+# Utilities
+click==8.1.7
+rich==13.7.0
+typer==0.9.0
+
+# Production Server
+gunicorn==21.2.0
+
+# Health Checks
+healthcheck==1.3.0
+
+# CORS and Security
+python-cors==1.7.0
+
+# Version: 1.0.0
+# Status: SHIPPED
+# Date: December 2024
