@@ -45,12 +45,30 @@ async def lifespan(app: FastAPI):
     try:
         print("[STARTUP] BK25 Python Edition starting up...")
         
-        # Initialize BK25 core
+        # Initialize BK25 core with full LLM configuration
         bk25 = BK25Core({
             "ollama_url": os.getenv("OLLAMA_URL", "http://localhost:11434"),
             "model": os.getenv("BK25_MODEL", "llama3.1:8b"),
             "port": int(os.getenv("PORT", "8000")),
-            "personas_path": str(config.paths.personas_path)
+            "personas_path": str(config.paths.personas_path),
+            # Add LLM configuration from config module
+            "provider": config.llm.provider,
+            "ollama_url": config.llm.ollama_url,
+            "ollama_model": config.llm.ollama_model,
+            "openai_api_key": config.llm.openai_api_key,
+            "openai_model": config.llm.openai_model,
+            "openai_base_url": config.llm.openai_base_url,
+            "anthropic_api_key": config.llm.anthropic_api_key,
+            "anthropic_model": config.llm.anthropic_model,
+            "anthropic_base_url": config.llm.anthropic_base_url,
+            "google_api_key": config.llm.google_api_key,
+            "google_model": config.llm.google_model,
+            "custom_api_url": config.llm.custom_api_url,
+            "custom_api_key": config.llm.custom_api_key,
+            "custom_model": config.llm.custom_model,
+            "temperature": config.llm.temperature,
+            "max_tokens": config.llm.max_tokens,
+            "timeout": config.llm.timeout
         })
         
         await bk25.initialize()

@@ -17,108 +17,20 @@
     <meta name="apple-mobile-web-app-title" content="BK25">
     <link rel="apple-touch-icon" href="/icon-192.png">
     
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        /* Ensure select elements work properly across browsers */
-        select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 8px center;
-            background-size: 16px;
-            padding-right: 32px;
-        }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            color: white;
-        }
-        
-        .header h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        .header .tagline {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 10px;
-        }
-        
-        .header .subtitle {
-            font-size: 1rem;
-            opacity: 0.8;
-            font-style: italic;
-        }
-        
-        .main-content {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            align-items: start;
-        }
-        
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-        }
-        
-        .chat-panel, .output-panel {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            overflow: visible;
-        }
-        
-        .panel-header {
-            background: #f8fafc;
-            padding: 20px;
-            border-bottom: 1px solid #e2e8f0;
-            font-weight: 600;
-            color: #475569;
-            overflow: visible;
-            position: relative;
-            z-index: 10;
         }
         
         .chat-container {
             height: 400px;
             overflow-y: auto;
-            padding: 20px;
-            background: #fafafa;
         }
         
         .message {
@@ -129,412 +41,30 @@
         }
         
         .message.user {
-            background: #2563eb;
+            background: #0d6efd;
             color: white;
             margin-left: auto;
         }
         
         .message.assistant {
             background: white;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #dee2e6;
         }
         
         .message.error {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #dc2626;
-        }
-        
-        .input-container {
-            padding: 20px;
-            border-top: 1px solid #e2e8f0;
-            background: white;
-        }
-        
-        .input-group {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .message-input {
-            flex: 1;
-            padding: 12px 16px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 16px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        
-        .message-input:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        
-        .send-button {
-            padding: 12px 24px;
-            background: #2563eb;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .send-button:hover:not(:disabled) {
-            background: #1d4ed8;
-        }
-        
-        .send-button:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-        }
-        
-        .selectors-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .persona-selector, .channel-selector, .platform-selector {
-            flex: 1;
-            position: relative;
-            z-index: 50;
-        }
-        
-        .persona-selector select, .channel-selector select, .platform-selector select {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            background: white;
-            font-size: 14px;
-            position: relative;
-            z-index: 100;
-        }
-        
-        .persona-selector label, .channel-selector label, .platform-selector label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #374151;
-        }
-        
-        .add-persona-btn {
-            margin-top: 5px;
-            padding: 4px 8px;
-            background: #10b981;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 11px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .add-persona-btn:hover {
-            background: #059669;
-        }
-        
-        /* Settings button */
-        .settings-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 8px 12px;
-            background: #6b7280;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .settings-btn:hover {
-            background: #4b5563;
-        }
-        
-        /* Fix dropdown visibility issues */
-        .persona-selector select:focus,
-        .channel-selector select:focus,
-        .platform-selector select:focus {
-            outline: 2px solid #2563eb;
-            outline-offset: 2px;
-            z-index: 200;
-        }
-        
-        /* Ensure select options are visible */
-        .persona-selector select option,
-        .channel-selector select option,
-        .platform-selector select option {
-            background: white;
-            color: #374151;
-            padding: 8px 12px;
-        }
-        
-        /* Fix any potential stacking context issues */
-        .selectors-row {
-            position: relative;
-            z-index: 25;
-        }
-        
-        /* Additional fixes for dropdown visibility */
-        .persona-selector, .channel-selector, .platform-selector {
-            overflow: visible !important;
-        }
-        
-        /* Ensure select elements are above other content */
-        select {
-            position: relative;
-            z-index: 100 !important;
-        }
-        
-        /* Fix for potential clipping issues */
-        .chat-panel .panel-header,
-        .output-panel .panel-header {
-            overflow: visible;
-        }
-        
-        @media (max-width: 768px) {
-            .selectors-row {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-        
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-        
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #374151;
-        }
-        
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #6b7280;
-        }
-        
-        .close-btn:hover {
-            color: #374151;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #374151;
-        }
-        
-        .form-input, .form-textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        
-        .form-input:focus, .form-textarea:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        
-        .form-textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-        
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 30px;
-        }
-        
-        /* Settings modal specific styles */
-        #settings-modal .modal-content {
-            max-width: 700px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        #settings-modal .form-group {
-            margin-bottom: 25px;
-        }
-        
-        #settings-modal .form-label {
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-            display: block;
-        }
-        
-        #settings-modal input[type="range"] {
-            width: 100%;
-            height: 6px;
-            border-radius: 3px;
-            background: #e5e7eb;
-            outline: none;
-            -webkit-appearance: none;
-        }
-        
-        #settings-modal input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #2563eb;
-            cursor: pointer;
-        }
-        
-        #settings-modal input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #2563eb;
-            cursor: pointer;
-            border: none;
-        }
-        
-        .provider-settings {
-            background: #f8fafc;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            margin-top: 10px;
-        }
-        
-        .provider-settings h4 {
-            margin-bottom: 15px;
-            color: #374151;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        
-        .connection-status-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            background: #f8fafc;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .connection-status-item .status-indicator {
-            width: 12px;
-            height: 12px;
-        }
-        
-        .btn-cancel, .btn-create {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .btn-cancel {
-            background: #f3f4f6;
-            color: #374151;
-        }
-        
-        .btn-cancel:hover {
-            background: #e5e7eb;
-        }
-        
-        .btn-create {
-            background: #2563eb;
-            color: white;
-        }
-        
-        .btn-create:hover {
-            background: #1d4ed8;
-        }
-        
-        .output-content {
-            padding: 20px;
-            min-height: 400px;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
         }
         
         .script-output {
-            background: #1f2937;
-            color: #f9fafb;
-            padding: 20px;
-            border-radius: 8px;
+            background: #212529;
+            color: #f8f9fa;
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             font-size: 14px;
             line-height: 1.5;
             overflow-x: auto;
             white-space: pre-wrap;
-        }
-        
-        .script-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .script-title {
-            font-weight: 600;
-            color: #374151;
-        }
-        
-        .copy-button {
-            padding: 6px 12px;
-            background: #10b981;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .copy-button:hover {
-            background: #059669;
         }
         
         .status-indicator {
@@ -546,19 +76,11 @@
         }
         
         .status-indicator.connected {
-            background: #10b981;
+            background: #198754;
         }
         
         .status-indicator.disconnected {
-            background: #ef4444;
-        }
-        
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            color: white;
-            opacity: 0.8;
-            font-size: 14px;
+            background: #dc3545;
         }
         
         .loading {
@@ -566,7 +88,7 @@
             width: 20px;
             height: 20px;
             border: 2px solid #f3f3f3;
-            border-top: 2px solid #2563eb;
+            border-top: 2px solid #0d6efd;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -575,267 +97,268 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        .examples {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8fafc;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .examples h4 {
-            margin-bottom: 10px;
-            color: #374151;
-            font-size: 14px;
-        }
-        
-        .example-item {
-            padding: 8px 12px;
-            margin: 5px 0;
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
-        
-        .example-item:hover {
-            background: #f1f5f9;
-            border-color: #2563eb;
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <h1>🤖 BK25</h1>
-            <div class="tagline">Generate enterprise automation without enterprise complexity</div>
-            <div class="subtitle">"Agents for whomst?" - For humans who need automation that works.</div>
-            <button class="settings-btn" id="settings-btn">⚙️ Settings</button>
-        </header>
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12 text-center text-white">
+                <h1 class="display-3 fw-bold mb-2">🤖 BK25</h1>
+                <p class="lead mb-1">Generate enterprise automation without enterprise complexity</p>
+                <p class="text-white-50 fst-italic">"Agents for whomst?" - For humans who need automation that works.</p>
+                <button class="btn btn-outline-light position-absolute top-0 end-0 m-3" id="settings-btn">
+                    <i class="bi bi-gear"></i> Settings
+                </button>
+            </div>
+        </div>
         
-        <main class="main-content">
-            <div class="chat-panel">
-                <div class="panel-header">
-                    <span class="status-indicator" id="status-indicator"></span>
-                    Conversation
-                </div>
-                
-                <div class="chat-container" id="chat-container">
-                    <!-- Initial greeting will be loaded dynamically from current persona -->
-                </div>
-                
-                <div class="input-container">
-                    <div class="selectors-row">
-                        <div class="persona-selector">
-                            <label for="persona-select">Persona: </label>
-                            <select id="persona-select">
-                                <option value="default">Loading...</option>
-                            </select>
-                            <button id="add-persona-btn" class="add-persona-btn">+ Add Persona</button>
-                        </div>
-                        
-                        <div class="channel-selector">
-                            <label for="channel-select">Channel: </label>
-                            <select id="channel-select">
-                                <option value="web">Loading...</option>
-                            </select>
-                        </div>
-                        
-                        <div class="platform-selector">
-                            <label for="platform-select">Platform: </label>
-                            <select id="platform-select">
-                                <option value="powershell">PowerShell (Windows)</option>
-                                <option value="applescript">AppleScript (macOS)</option>
-                                <option value="bash">Bash (Linux/Unix)</option>
-                            </select>
-                        </div>
+        <!-- Main Content -->
+        <div class="row g-4">
+            <!-- Chat Panel -->
+            <div class="col-lg-6">
+                <div class="card shadow">
+                    <div class="card-header bg-light">
+                        <span class="status-indicator" id="status-indicator"></span>
+                        <strong>Conversation</strong>
                     </div>
                     
-                    <div class="input-group">
-                        <input 
-                            type="text" 
-                            id="message-input" 
-                            class="message-input" 
-                            placeholder="What can I help you with today?"
-                            autocomplete="off"
-                        >
-                        <button id="send-button" class="send-button">Send</button>
+                    <div class="chat-container p-3" id="chat-container">
+                        <!-- Initial greeting will be loaded dynamically from current persona -->
                     </div>
                     
-                    <div class="examples">
-                        <h4>💡 Example requests:</h4>
-                        <div class="example-item" data-text="What job do you need to get done?">What job do you need to get done?</div>
-                        <div class="example-item" data-text="Tell me about the task you want to automate">Tell me about the task you want to automate</div>
-                        <div class="example-item" data-text="I can help you generate code for your automation needs">I can help you generate code for your automation needs</div>
+                    <div class="card-footer">
+                        <!-- Selectors Row -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label for="persona-select" class="form-label small fw-bold">Persona:</label>
+                                <select class="form-select" id="persona-select">
+                                    <option value="default">Loading...</option>
+                                </select>
+                                <button id="add-persona-btn" class="btn btn-sm btn-success mt-1">
+                                    <i class="bi bi-plus"></i> Add Persona
+                                </button>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="channel-select" class="form-label small fw-bold">Channel:</label>
+                                <select class="form-select" id="channel-select">
+                                    <option value="web">Loading...</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="platform-select" class="form-label small fw-bold">Platform:</label>
+                                <select class="form-select" id="platform-select">
+                                    <option value="powershell">PowerShell (Windows)</option>
+                                    <option value="applescript">AppleScript (macOS)</option>
+                                    <option value="bash">Bash (Linux/Unix)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Input Group -->
+                        <div class="input-group">
+                            <input 
+                                type="text" 
+                                id="message-input" 
+                                class="form-control" 
+                                placeholder="What can I help you with today?"
+                                autocomplete="off"
+                            >
+                            <button id="send-button" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Send
+                            </button>
+                        </div>
+                        
+                        <!-- Examples -->
+                        <div class="mt-3 p-3 bg-light rounded">
+                            <h6 class="mb-2"><i class="bi bi-lightbulb"></i> Example requests:</h6>
+                            <div class="example-item btn btn-sm btn-outline-secondary me-2 mb-1" data-text="What job do you need to get done?">What job do you need to get done?</div>
+                            <div class="example-item btn btn-sm btn-outline-secondary me-2 mb-1" data-text="Tell me about the task you want to automate">Tell me about the task you want to automate</div>
+                            <div class="example-item btn btn-sm btn-outline-secondary me-2 mb-1" data-text="I can help you generate code for your automation needs">I can help you generate code for your automation needs</div>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="output-panel">
-                <div class="panel-header">Generated Script</div>
-                
-                <div class="output-content" id="output-content">
-                    <div style="text-align: center; color: #6b7280; padding: 60px 20px;">
-                        <div style="font-size: 48px; margin-bottom: 20px;">📝</div>
-                        <div>Your generated automation scripts will appear here</div>
-                        <div style="font-size: 14px; margin-top: 10px;">Start a conversation to generate your first script!</div>
+            <!-- Output Panel -->
+            <div class="col-lg-6">
+                <div class="card shadow">
+                    <div class="card-header bg-light">
+                        <strong>Generated Script</strong>
+                    </div>
+                    
+                    <div class="card-body" id="output-content">
+                        <div class="text-center text-muted py-5">
+                            <div class="display-1 mb-3">📝</div>
+                            <h5>Your generated automation scripts will appear here</h5>
+                            <p class="text-muted">Start a conversation to generate your first script!</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
         
-        <footer class="footer">
-            <div>
-                BK25 v1.0.0 - A love letter to the conversational AI community<br>
-                From Peter Swimm (original Botkit PM) and the Toilville team
+        <!-- Footer -->
+        <div class="row mt-5">
+            <div class="col-12 text-center text-white-50">
+                <p class="mb-0">
+                    BK25 v1.0.0 - A love letter to the conversational AI community<br>
+                    From Peter Swimm (original Botkit PM) and the Toilville team
+                </p>
             </div>
-        </footer>
+        </div>
     </div>
 
     <!-- Add Persona Modal -->
-    <div id="add-persona-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Add Custom Persona</h2>
-                <button class="close-btn" id="close-modal">&times;</button>
+    <div class="modal fade" id="add-persona-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Custom Persona</h5>
+                    <button type="button" class="btn-close" id="close-modal"></button>
+                </div>
+                
+                <form id="persona-form">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label" for="persona-name">Persona Name *</label>
+                            <input type="text" id="persona-name" class="form-control" placeholder="e.g., Marketing Expert" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label" for="persona-description">Description</label>
+                            <input type="text" id="persona-description" class="form-control" placeholder="Brief description of this persona">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label" for="persona-prompt">System Prompt Instructions *</label>
+                            <textarea id="persona-prompt" class="form-control" rows="4" placeholder="You are a [role]. Your personality is [description]. Your approach is [method]. You should [guidelines]..." required></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="cancel-persona">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Persona</button>
+                    </div>
+                </form>
             </div>
-            
-            <form id="persona-form">
-                <div class="form-group">
-                    <label class="form-label" for="persona-name">Persona Name *</label>
-                    <input type="text" id="persona-name" class="form-input" placeholder="e.g., Marketing Expert" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="persona-description">Description</label>
-                    <input type="text" id="persona-description" class="form-input" placeholder="Brief description of this persona">
-                </div>
-                
-                <div class="form-label" for="persona-prompt">System Prompt Instructions *</label>
-                    <textarea id="persona-prompt" class="form-textarea" placeholder="You are a [role]. Your personality is [description]. Your approach is [method]. You should [guidelines]..." required></textarea>
-                </div>
-                
-                <div class="modal-actions">
-                    <button type="button" class="btn-cancel" id="cancel-persona">Cancel</button>
-                    <button type="submit" class="btn-create">Create Persona</button>
-                </div>
-            </form>
         </div>
     </div>
 
     <!-- Settings Modal -->
-    <div id="settings-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">LLM Settings</h2>
-                <button class="close-btn" id="close-settings-modal">&times;</button>
-            </div>
-            
-            <form id="settings-form">
-                <div class="form-group">
-                    <label class="form-label" for="llm-provider">LLM Provider</label>
-                    <select id="llm-provider" class="form-input">
-                        <option value="ollama">Ollama (Local)</option>
-                        <option value="openai">OpenAI</option>
-                        <option value="anthropic">Anthropic (Claude)</option>
-                        <option value="google">Google (Gemini)</option>
-                        <option value="custom">Custom API</option>
-                    </select>
+    <div class="modal fade" id="settings-modal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">LLM Settings</h5>
+                    <button type="button" class="btn-close" id="close-settings-modal"></button>
                 </div>
                 
-                <div class="form-group" id="ollama-settings">
-                    <label class="form-label" for="ollama-url">Ollama URL</label>
-                    <input type="url" id="ollama-url" class="form-input" placeholder="http://localhost:11434" value="http://localhost:11434">
-                    
-                    <label class="form-label" for="ollama-model">Model Name</label>
-                    <input type="text" id="ollama-model" class="form-input" placeholder="llama3.1:8b" value="llama3.1:8b">
-                </div>
-                
-                <div class="form-group" id="openai-settings" style="display: none;">
-                    <label class="form-label" for="openai-api-key">OpenAI API Key</label>
-                    <input type="password" id="openai-api-key" class="form-input" placeholder="sk-...">
-                    
-                    <label class="form-label" for="openai-model">Model</label>
-                    <select id="openai-model" class="form-input">
-                        <option value="gpt-4o">GPT-4o</option>
-                        <option value="gpt-4o-mini">GPT-4o Mini</option>
-                        <option value="gpt-4-turbo">GPT-4 Turbo</option>
-                        <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-                    </select>
-                </div>
-                
-                <div class="form-group" id="anthropic-settings" style="display: none;">
-                    <label class="form-label" for="anthropic-api-key">Anthropic API Key</label>
-                    <input type="password" id="anthropic-api-key" class="form-input" placeholder="sk-ant-...">
-                    
-                    <label class="form-label" for="anthropic-model">Model</label>
-                    <select id="anthropic-model" class="form-input">
-                        <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
-                        <option value="claude-3-opus">Claude 3 Opus</option>
-                        <option value="claude-3-sonnet">Claude 3 Sonnet</option>
-                        <option value="claude-3-haiku">Claude 3 Haiku</option>
-                    </select>
-                </div>
-                
-                <div class="form-group" id="google-settings" style="display: none;">
-                    <label class="form-label" for="google-api-key">Google API Key</label>
-                    <input type="password" id="google-api-key" class="form-input" placeholder="AIza...">
-                    
-                    <label class="form-label" for="google-model">Model</label>
-                    <select id="google-model" class="form-input">
-                        <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-                        <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                        <option value="gemini-pro">Gemini Pro</option>
-                    </select>
-                </div>
-                
-                <div class="form-group" id="custom-settings" style="display: none;">
-                    <label class="form-label" for="custom-api-url">Custom API URL</label>
-                    <input type="url" id="custom-api-url" class="form-input" placeholder="https://api.example.com/v1">
-                    
-                    <label class="form-label" for="custom-api-key">API Key</label>
-                    <input type="password" id="custom-api-key" class="form-input" placeholder="Your API key">
-                    
-                    <label class="form-label" for="custom-model">Model Parameter</label>
-                    <input type="text" id="custom-model" class="form-input" placeholder="model name or parameter">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="temperature">Temperature</label>
-                    <input type="range" id="temperature" class="form-input" min="0" max="2" step="0.1" value="0.7">
-                    <div style="text-align: center; font-size: 12px; color: #6b7280; margin-top: 5px;">
-                        <span id="temperature-value">0.7</span> (0 = focused, 2 = creative)
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="max-tokens">Max Tokens</label>
-                    <input type="number" id="max-tokens" class="form-input" min="100" max="8000" value="2000">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="timeout">Timeout (seconds)</label>
-                    <input type="number" id="timeout" class="form-input" min="10" max="300" value="60">
-                </div>
-                
-                <div class="form-group">
-                    <div id="connection-status" style="display: none;">
-                        <div class="connection-status-item">
-                            <span class="status-indicator" id="connection-indicator"></span>
-                            <span id="connection-message">Testing connection...</span>
+                <form id="settings-form">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label" for="llm-provider">LLM Provider</label>
+                            <select id="llm-provider" class="form-select">
+                                <option value="ollama">Ollama (Local)</option>
+                                <option value="openai">OpenAI</option>
+                                <option value="anthropic">Anthropic (Claude)</option>
+                                <option value="google">Google (Gemini)</option>
+                                <option value="custom">Custom API</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3" id="ollama-settings">
+                            <label class="form-label" for="ollama-url">Ollama URL</label>
+                            <input type="url" id="ollama-url" class="form-control" placeholder="http://localhost:11434" value="http://localhost:11434">
+                            
+                            <label class="form-label mt-2" for="ollama-model">Model Name</label>
+                            <input type="text" id="ollama-model" class="form-control" placeholder="llama3.1:8b" value="llama3.1:8b">
+                        </div>
+                        
+                        <div class="mb-3" id="openai-settings" style="display: none;">
+                            <label class="form-label" for="openai-api-key">OpenAI API Key</label>
+                            <input type="password" id="openai-api-key" class="form-control" placeholder="sk-...">
+                            
+                            <label class="form-label mt-2" for="openai-model">Model</label>
+                            <select id="openai-model" class="form-select">
+                                <option value="gpt-4o">GPT-4o</option>
+                                <option value="gpt-4o-mini">GPT-4o Mini</option>
+                                <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3" id="anthropic-settings" style="display: none;">
+                            <label class="form-label" for="anthropic-api-key">Anthropic API Key</label>
+                            <input type="password" id="anthropic-api-key" class="form-control" placeholder="sk-ant-...">
+                            
+                            <label class="form-label mt-2" for="anthropic-model">Model</label>
+                            <select id="anthropic-model" class="form-select">
+                                <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+                                <option value="claude-3-opus">Claude 3 Opus</option>
+                                <option value="claude-3-sonnet">Claude 3 Sonnet</option>
+                                <option value="claude-3-haiku">Claude 3 Haiku</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3" id="google-settings" style="display: none;">
+                            <label class="form-label" for="google-api-key">Google API Key</label>
+                            <input type="password" id="google-api-key" class="form-control" placeholder="AIza...">
+                            
+                            <label class="form-label mt-2" for="google-model">Model</label>
+                            <select id="google-model" class="form-select">
+                                <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                                <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                                <option value="gemini-pro">Gemini Pro</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3" id="custom-settings" style="display: none;">
+                            <label class="form-label" for="custom-api-url">Custom API URL</label>
+                            <input type="url" id="custom-api-url" class="form-control" placeholder="https://api.example.com/v1">
+                            
+                            <label class="form-label mt-2" for="custom-api-key">API Key</label>
+                            <input type="password" id="custom-api-key" class="form-control" placeholder="Your API key">
+                            
+                            <label class="form-label mt-2" for="custom-model">Model Parameter</label>
+                            <input type="text" id="custom-model" class="form-control" placeholder="model name or parameter">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label" for="temperature">Temperature</label>
+                            <input type="range" id="temperature" class="form-range" min="0" max="2" step="0.1" value="0.7">
+                            <div class="text-center text-muted small mt-1">
+                                <span id="temperature-value">0.7</span> (0 = focused, 2 = creative)
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label" for="max-tokens">Max Tokens</label>
+                            <input type="number" id="max-tokens" class="form-control" min="100" max="8000" value="2000">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label" for="timeout">Timeout (seconds)</label>
+                            <input type="number" id="timeout" class="form-control" min="10" max="300" value="60">
+                        </div>
+                        
+                        <div class="mb-3" id="connection-status" style="display: none;">
+                            <div class="alert alert-info">
+                                <span class="status-indicator" id="connection-indicator"></span>
+                                <span id="connection-message">Testing connection...</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="modal-actions">
-                    <button type="button" class="btn-cancel" id="cancel-settings">Cancel</button>
-                    <button type="button" class="btn-create" id="test-connection">Test Connection</button>
-                    <button type="submit" class="btn-create">Save Settings</button>
-                </div>
-            </form>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="cancel-settings">Cancel</button>
+                        <button type="button" class="btn btn-info" id="test-connection">Test Connection</button>
+                        <button type="submit" class="btn btn-primary">Save Settings</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -885,15 +408,15 @@
                 // Channel change handler
                 this.channelSelect.addEventListener('change', () => this.switchChannel());
                 
-                                 // Add persona button handler
-                 this.addPersonaBtn.addEventListener('click', () => this.showAddPersonaModal());
-                 
-                 // Settings button handler
-                 document.getElementById('settings-btn').addEventListener('click', () => this.showSettingsModal());
-                 
-                 // Modal handlers
-                 this.setupModalHandlers();
-                 this.setupSettingsHandlers();
+                // Add persona button handler
+                this.addPersonaBtn.addEventListener('click', () => this.showAddPersonaModal());
+                
+                // Settings button handler
+                document.getElementById('settings-btn').addEventListener('click', () => this.showSettingsModal());
+                
+                // Modal handlers
+                this.setupModalHandlers();
+                this.setupSettingsHandlers();
                 
                 // Load personas, channels and check server status
                 this.loadPersonas();
@@ -918,7 +441,7 @@
                 } catch (error) {
                     this.isConnected = false;
                     this.updateStatusIndicator();
-                    this.addMessage('system', '❌ Cannot connect to BK25 server. Please start the server with `npm start`.');
+                    this.addMessage('system', '❌ Cannot connect to BK25 server. Please start the server.');
                 }
             }
             
@@ -954,11 +477,26 @@
                     const data = await response.json();
                     
                     if (response.ok) {
-                        this.addMessage('assistant', data.message);
+                        // Backend returns 'response' field, not 'message'
+                        const responseText = data.response || data.message || 'No response received';
+                        this.addMessage('assistant', responseText);
                         
-                        // If automation was generated, show it
-                        if (data.automation) {
-                            this.displayScript(data.automation);
+                        // Check if we have persona info to update UI
+                        if (data.persona) {
+                            this.currentPersona = data.persona;
+                            this.updatePersonaUI(data.persona);
+                        }
+                        
+                        // For now, we'll need to implement automation detection
+                        // This could be enhanced to detect when code is generated
+                        if (responseText.includes('```') || responseText.includes('script') || responseText.includes('automation')) {
+                            // Simple heuristic - if response contains code blocks or automation keywords
+                            this.displayScript({
+                                filename: 'Generated Response',
+                                platform: this.platformSelect.value,
+                                script: responseText,
+                                documentation: 'Response from BK25'
+                            });
                         }
                     } else {
                         this.addMessage('error', data.error || 'An error occurred');
@@ -986,26 +524,26 @@
                 if (loading) {
                     this.sendButton.innerHTML = '<div class="loading"></div>';
                 } else {
-                    this.sendButton.innerHTML = 'Send';
+                    this.sendButton.innerHTML = '<i class="bi bi-send"></i> Send';
                 }
             }
             
             displayScript(automation) {
                 const scriptHtml = `
-                    <div class="script-header">
-                        <div class="script-title">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
                             📄 ${automation.filename || 'Generated Script'} 
-                            <span style="font-size: 12px; color: #6b7280;">(${automation.platform})</span>
-                        </div>
-                        <button class="copy-button" onclick="this.copyScript('${automation.script.replace(/'/g, "\\'")}')">
-                            Copy Script
+                            <small class="text-muted">(${automation.platform})</small>
+                        </h5>
+                        <button class="btn btn-success btn-sm" onclick="copyScript('${automation.script.replace(/'/g, "\\'")}')">
+                            <i class="bi bi-clipboard"></i> Copy Script
                         </button>
                     </div>
-                    <div class="script-output">${this.escapeHtml(automation.script)}</div>
+                    <div class="script-output p-3 rounded">${this.escapeHtml(automation.script)}</div>
                     ${automation.documentation ? `
-                        <div style="margin-top: 15px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-                            <h4 style="margin-bottom: 10px; color: #374151;">📋 Documentation:</h4>
-                            <div style="font-size: 14px; color: #6b7280; white-space: pre-line;">${this.escapeHtml(automation.documentation)}</div>
+                        <div class="mt-3 p-3 bg-light rounded border">
+                            <h6 class="mb-2">📋 Documentation:</h6>
+                            <div class="text-muted small" style="white-space: pre-line;">${this.escapeHtml(automation.documentation)}</div>
                         </div>
                     ` : ''}
                 `;
@@ -1023,13 +561,11 @@
                 navigator.clipboard.writeText(script).then(() => {
                     // Show feedback
                     const button = event.target;
-                    const originalText = button.textContent;
-                    button.textContent = 'Copied!';
-                    button.style.background = '#059669';
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '<i class="bi bi-check"></i> Copied!';
                     
                     setTimeout(() => {
-                        button.textContent = originalText;
-                        button.style.background = '#10b981';
+                        button.innerHTML = originalText;
                     }, 2000);
                 }).catch(err => {
                     console.error('Failed to copy script:', err);
@@ -1038,32 +574,40 @@
             
             async loadPersonas() {
                 try {
+                    console.log('Loading personas...');
                     const response = await fetch('/api/personas?channel=web');
                     if (response.ok) {
-                        const personas = await response.json();
+                        const data = await response.json();
+                        console.log('Personas loaded:', data);
+                        // Extract the personas array from the response
+                        const personas = data.personas || [];
                         this.populatePersonaSelect(personas);
                         
                         // Load current persona
                         const currentResponse = await fetch('/api/personas/current');
                         if (currentResponse.ok) {
                             const currentPersona = await currentResponse.json();
+                            console.log('Current persona:', currentPersona);
                             this.currentPersona = currentPersona;
                             this.updatePersonaUI(currentPersona);
+                        } else {
+                            console.error('Failed to load current persona:', currentResponse.status, currentResponse.statusText);
                         }
                     }
                 } catch (error) {
                     console.error('Failed to load personas:', error);
-                    // Keep default option if loading fails
                 }
             }
             
             populatePersonaSelect(personas) {
+                console.log('Populating persona select with:', personas);
                 this.personaSelect.innerHTML = '';
                 personas.forEach(persona => {
                     const option = document.createElement('option');
                     option.value = persona.id;
                     option.textContent = persona.name;
                     this.personaSelect.appendChild(option);
+                    console.log('Added persona option:', persona.name);
                 });
             }
             
@@ -1072,12 +616,11 @@
                 if (!selectedPersonaId) return;
                 
                 try {
-                    const response = await fetch('/api/personas/switch', {
+                    const response = await fetch(`/api/personas/${selectedPersonaId}/switch`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ personaId: selectedPersonaId })
+                        }
                     });
                     
                     if (response.ok) {
@@ -1098,27 +641,24 @@
             updatePersonaUI(persona) {
                 if (!persona) return;
                 
+                console.log('Updating persona UI with:', persona);
+                
                 // Update persona select
                 this.personaSelect.value = persona.id;
                 
                 // Show persona greeting if chat is empty
                 if (this.chatContainer.children.length === 0) {
-                    this.addMessage('assistant', persona.greeting);
-                    this.updateExamples(persona.examples);
-                }
-                
-                // Update placeholder based on persona
-                if (persona.personality && persona.personality.tone) {
-                    // Keep the friendly placeholder for now
-                    this.messageInput.placeholder = "What can I help you with today?";
+                    const greeting = persona.greeting || `Hello! I'm ${persona.name}. How can I help you today?`;
+                    console.log('Adding greeting:', greeting);
+                    this.addMessage('assistant', greeting);
+                    this.updateExamples(persona.examples || []);
                 }
             }
             
             updateExamples(examples) {
                 if (!examples || examples.length === 0) return;
                 
-                const examplesContainer = document.querySelector('.examples');
-                const exampleItems = examplesContainer.querySelectorAll('.example-item');
+                const exampleItems = document.querySelectorAll('.example-item');
                 
                 // Update existing examples with persona-specific ones
                 examples.slice(0, 3).forEach((example, index) => {
@@ -1135,15 +675,20 @@
             
             async loadChannels() {
                 try {
+                    console.log('Loading channels...');
                     const response = await fetch('/api/channels');
                     if (response.ok) {
-                        const channels = await response.json();
+                        const data = await response.json();
+                        console.log('Channels loaded:', data);
+                        // Extract the channels array from the response
+                        const channels = data.channels || [];
                         this.populateChannelSelect(channels);
                         
                         // Load current channel
                         const currentResponse = await fetch('/api/channels/current');
                         if (currentResponse.ok) {
                             const currentChannel = await currentResponse.json();
+                            console.log('Current channel:', currentChannel);
                             this.currentChannel = currentChannel;
                             this.updateChannelUI(currentChannel);
                         }
@@ -1154,12 +699,14 @@
             }
             
             populateChannelSelect(channels) {
+                console.log('Populating channel select with:', channels);
                 this.channelSelect.innerHTML = '';
                 channels.forEach(channel => {
                     const option = document.createElement('option');
                     option.value = channel.id;
                     option.textContent = channel.name;
                     this.channelSelect.appendChild(option);
+                    console.log('Added channel option:', channel.name);
                 });
             }
             
@@ -1168,12 +715,11 @@
                 if (!selectedChannelId) return;
                 
                 try {
-                    const response = await fetch('/api/channels/switch', {
+                    const response = await fetch(`/api/channels/${selectedChannelId}/switch`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ channelId: selectedChannelId })
+                        }
                     });
                     
                     if (response.ok) {
@@ -1197,8 +743,7 @@
             updateChannelExamples(channel, artifacts) {
                 if (!artifacts || artifacts.length === 0) return;
                 
-                const examplesContainer = document.querySelector('.examples');
-                const exampleItems = examplesContainer.querySelectorAll('.example-item');
+                const exampleItems = document.querySelectorAll('.example-item');
                 
                 // Update examples based on channel artifacts
                 const channelExamples = [
@@ -1216,20 +761,19 @@
             }
             
             showAddPersonaModal() {
-                const modal = document.getElementById('add-persona-modal');
-                modal.style.display = 'block';
+                const modal = new bootstrap.Modal(document.getElementById('add-persona-modal'));
+                modal.show();
             }
             
             hideAddPersonaModal() {
-                const modal = document.getElementById('add-persona-modal');
-                modal.style.display = 'none';
+                const modal = bootstrap.Modal.getInstance(document.getElementById('add-persona-modal'));
+                modal.hide();
                 
                 // Clear form
                 document.getElementById('persona-form').reset();
             }
             
             setupModalHandlers() {
-                const modal = document.getElementById('add-persona-modal');
                 const closeBtn = document.getElementById('close-modal');
                 const cancelBtn = document.getElementById('cancel-persona');
                 const form = document.getElementById('persona-form');
@@ -1237,13 +781,6 @@
                 // Close modal handlers
                 closeBtn.addEventListener('click', () => this.hideAddPersonaModal());
                 cancelBtn.addEventListener('click', () => this.hideAddPersonaModal());
-                
-                // Click outside to close
-                modal.addEventListener('click', (e) => {
-                    if (e.target === modal) {
-                        this.hideAddPersonaModal();
-                    }
-                });
                 
                 // Form submission
                 form.addEventListener('submit', (e) => this.handleCreatePersona(e));
@@ -1271,7 +808,7 @@
                             name: name,
                             description: description,
                             systemPrompt: systemPrompt,
-                            channels: ['web'] // Default to web channel
+                            channels: ['web']
                         })
                     });
                     
@@ -1300,253 +837,245 @@
                     }
                 } catch (error) {
                     console.error('Failed to create persona:', error);
-                                         alert('Failed to create persona. Please try again.');
-                 }
-             }
-             
-             // Settings Modal Methods
-             showSettingsModal() {
-                 const modal = document.getElementById('settings-modal');
-                 modal.style.display = 'block';
-                 this.loadCurrentSettings();
-             }
-             
-             hideSettingsModal() {
-                 const modal = document.getElementById('settings-modal');
-                 modal.style.display = 'none';
-             }
-             
-             setupSettingsHandlers() {
-                 const modal = document.getElementById('settings-modal');
-                 const closeBtn = document.getElementById('close-settings-modal');
-                 const cancelBtn = document.getElementById('cancel-settings');
-                 const form = document.getElementById('settings-form');
-                 const providerSelect = document.getElementById('llm-provider');
-                 const testBtn = document.getElementById('test-connection');
-                 const temperatureSlider = document.getElementById('temperature');
-                 const temperatureValue = document.getElementById('temperature-value');
-                 
-                 // Close modal handlers
-                 closeBtn.addEventListener('click', () => this.hideSettingsModal());
-                 cancelBtn.addEventListener('click', () => this.hideSettingsModal());
-                 
-                 // Click outside to close
-                 modal.addEventListener('click', (e) => {
-                     if (e.target === modal) {
-                         this.hideSettingsModal();
-                     }
-                 });
-                 
-                 // Provider change handler
-                 providerSelect.addEventListener('change', () => this.toggleProviderSettings());
-                 
-                 // Temperature slider handler
-                 temperatureSlider.addEventListener('input', (e) => {
-                     temperatureValue.textContent = e.target.value;
-                 });
-                 
-                 // Test connection handler
-                 testBtn.addEventListener('click', (e) => this.testConnection(e));
-                 
-                 // Form submission
-                 form.addEventListener('submit', (e) => this.handleSaveSettings(e));
-             }
-             
-             toggleProviderSettings() {
-                 const provider = document.getElementById('llm-provider').value;
-                 const allSettings = ['ollama-settings', 'openai-settings', 'anthropic-settings', 'google-settings', 'custom-settings'];
-                 
-                 // Hide all settings
-                 allSettings.forEach(id => {
-                     document.getElementById(id).style.display = 'none';
-                 });
-                 
-                 // Show selected provider settings
-                 if (provider !== 'ollama') {
-                     document.getElementById(`${provider}-settings`).style.display = 'block';
-                 }
-             }
-             
-             async loadCurrentSettings() {
-                 try {
-                     const response = await fetch('/api/settings');
-                     if (response.ok) {
-                         const settings = await response.json();
-                         this.populateSettingsForm(settings);
-                     }
-                 } catch (error) {
-                     console.error('Failed to load settings:', error);
-                     // Load default settings
-                     this.populateSettingsForm(this.getDefaultSettings());
-                 }
-             }
-             
-             getDefaultSettings() {
-                 return {
-                     provider: 'ollama',
-                     ollama: {
-                         url: 'http://localhost:11434',
-                         model: 'llama3.1:8b'
-                     },
-                     openai: {
-                         apiKey: '',
-                         model: 'gpt-4o'
-                     },
-                     anthropic: {
-                         apiKey: '',
-                         model: 'claude-3-5-sonnet'
-                     },
-                     google: {
-                         apiKey: '',
-                         model: 'gemini-1.5-pro'
-                     },
-                     custom: {
-                         url: '',
-                         apiKey: '',
-                         model: ''
-                     },
-                     temperature: 0.7,
-                     maxTokens: 2000,
-                     timeout: 60
-                 };
-             }
-             
-             populateSettingsForm(settings) {
-                 document.getElementById('llm-provider').value = settings.provider || 'ollama';
-                 document.getElementById('ollama-url').value = settings.ollama?.url || 'http://localhost:11434';
-                 document.getElementById('ollama-model').value = settings.ollama?.model || 'llama3.1:8b';
-                 document.getElementById('openai-api-key').value = settings.openai?.apiKey || '';
-                 document.getElementById('openai-model').value = settings.openai?.model || 'gpt-4o';
-                 document.getElementById('anthropic-api-key').value = settings.anthropic?.apiKey || '';
-                 document.getElementById('anthropic-model').value = settings.anthropic?.model || 'claude-3-5-sonnet';
-                 document.getElementById('google-api-key').value = settings.google?.apiKey || '';
-                 document.getElementById('google-model').value = settings.google?.model || 'gemini-1.5-pro';
-                 document.getElementById('custom-api-url').value = settings.custom?.url || '';
-                 document.getElementById('custom-api-key').value = settings.custom?.apiKey || '';
-                 document.getElementById('custom-model').value = settings.custom?.model || '';
-                 document.getElementById('temperature').value = settings.temperature || 0.7;
-                 document.getElementById('temperature-value').textContent = settings.temperature || 0.7;
-                 document.getElementById('max-tokens').value = settings.maxTokens || 2000;
-                 document.getElementById('timeout').value = settings.timeout || 60;
-                 
-                 this.toggleProviderSettings();
-             }
-             
-             async testConnection(e) {
-                 e.preventDefault();
-                 const testBtn = e.target;
-                 const originalText = testBtn.textContent;
-                 const statusDiv = document.getElementById('connection-status');
-                 const indicator = document.getElementById('connection-indicator');
-                 const message = document.getElementById('connection-message');
-                 
-                 // Show status
-                 statusDiv.style.display = 'block';
-                 testBtn.textContent = 'Testing...';
-                 testBtn.disabled = true;
-                 
-                 // Set initial status
-                 indicator.className = 'status-indicator';
-                 message.textContent = 'Testing connection...';
-                 
-                 try {
-                     const settings = this.getSettingsFromForm();
-                     const response = await fetch('/api/settings/test', {
-                         method: 'POST',
-                         headers: {
-                             'Content-Type': 'application/json',
-                         },
-                         body: JSON.stringify(settings)
-                     });
-                     
-                     const result = await response.json();
-                     
-                     if (response.ok && result.success) {
-                         indicator.className = 'status-indicator connected';
-                         message.textContent = `✅ Connected! Model: ${result.model} (${result.responseTime}ms)`;
-                         if (result.availableModels) {
-                             message.textContent += ` | Available: ${result.availableModels.slice(0, 3).join(', ')}${result.availableModels.length > 3 ? '...' : ''}`;
-                         }
-                     } else {
-                         indicator.className = 'status-indicator disconnected';
-                         message.textContent = `❌ Connection failed: ${result.error || 'Unknown error'}`;
-                     }
-                 } catch (error) {
-                     indicator.className = 'status-indicator disconnected';
-                     message.textContent = `❌ Test failed: ${error.message}`;
-                 } finally {
-                     testBtn.textContent = originalText;
-                     testBtn.disabled = false;
-                 }
-             }
-             
-             getSettingsFromForm() {
-                 const provider = document.getElementById('llm-provider').value;
-                 
-                 return {
-                     provider: provider,
-                     ollama: {
-                         url: document.getElementById('ollama-url').value,
-                         model: document.getElementById('ollama-model').value
-                     },
-                     openai: {
-                         apiKey: document.getElementById('openai-api-key').value,
-                         model: document.getElementById('openai-model').value
-                     },
-                     anthropic: {
-                         apiKey: document.getElementById('anthropic-api-key').value,
-                         model: document.getElementById('anthropic-model').value
-                     },
-                     google: {
-                         apiKey: document.getElementById('google-api-key').value,
-                         model: document.getElementById('google-model').value
-                     },
-                     custom: {
-                         url: document.getElementById('custom-api-url').value,
-                         apiKey: document.getElementById('custom-api-key').value,
-                         model: document.getElementById('custom-model').value
-                     },
-                     temperature: parseFloat(document.getElementById('temperature').value),
-                     maxTokens: parseInt(document.getElementById('max-tokens').value),
-                     timeout: parseInt(document.getElementById('timeout').value)
-                 };
-             }
-             
-             async handleSaveSettings(e) {
-                 e.preventDefault();
-                 
-                 const settings = this.getSettingsFromForm();
-                 
-                 try {
-                     const response = await fetch('/api/settings', {
-                         method: 'POST',
-                         headers: {
-                             'Content-Type': 'application/json',
-                         },
-                         body: JSON.stringify(settings)
-                     });
-                     
-                     if (response.ok) {
-                         alert('✅ Settings saved successfully!');
-                         this.hideSettingsModal();
-                         
-                         // Refresh server status to check new connection
-                         this.checkServerStatus();
-                     } else {
-                         const error = await response.json();
-                         alert(`❌ Failed to save settings: ${error.error}`);
-                     }
-                 } catch (error) {
-                     console.error('Failed to save settings:', error);
-                     alert('Failed to save settings. Please try again.');
-                 }
-             }
-         }
-         
-         // Global function for copy button
-         window.copyScript = function(script) {
-             navigator.clipboard.writeText(script);
-         };
+                    alert('Failed to create persona. Please try again.');
+                }
+            }
+            
+            // Settings Modal Methods
+            showSettingsModal() {
+                const modal = new bootstrap.Modal(document.getElementById('settings-modal'));
+                modal.show();
+                this.loadCurrentSettings();
+            }
+            
+            hideSettingsModal() {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('settings-modal'));
+                modal.hide();
+            }
+            
+            setupSettingsHandlers() {
+                const closeBtn = document.getElementById('close-settings-modal');
+                const cancelBtn = document.getElementById('cancel-settings');
+                const form = document.getElementById('settings-form');
+                const providerSelect = document.getElementById('llm-provider');
+                const testBtn = document.getElementById('test-connection');
+                const temperatureSlider = document.getElementById('temperature');
+                const temperatureValue = document.getElementById('temperature-value');
+                
+                // Close modal handlers
+                closeBtn.addEventListener('click', () => this.hideSettingsModal());
+                cancelBtn.addEventListener('click', () => this.hideSettingsModal());
+                
+                // Provider change handler
+                providerSelect.addEventListener('change', () => this.toggleProviderSettings());
+                
+                // Temperature slider handler
+                temperatureSlider.addEventListener('input', (e) => {
+                    temperatureValue.textContent = e.target.value;
+                });
+                
+                // Test connection handler
+                testBtn.addEventListener('click', (e) => this.testConnection(e));
+                
+                // Form submission
+                form.addEventListener('submit', (e) => this.handleSaveSettings(e));
+            }
+            
+            toggleProviderSettings() {
+                const provider = document.getElementById('llm-provider').value;
+                const allSettings = ['ollama-settings', 'openai-settings', 'anthropic-settings', 'google-settings', 'custom-settings'];
+                
+                // Hide all settings
+                allSettings.forEach(id => {
+                    document.getElementById(id).style.display = 'none';
+                });
+                
+                // Show selected provider settings
+                if (provider !== 'ollama') {
+                    document.getElementById(`${provider}-settings`).style.display = 'block';
+                }
+            }
+            
+            async loadCurrentSettings() {
+                try {
+                    const response = await fetch('/api/settings');
+                    if (response.ok) {
+                        const settings = await response.json();
+                        this.populateSettingsForm(settings);
+                    }
+                } catch (error) {
+                    console.error('Failed to load settings:', error);
+                    // Load default settings
+                    this.populateSettingsForm(this.getDefaultSettings());
+                }
+            }
+            
+            getDefaultSettings() {
+                return {
+                    provider: 'ollama',
+                    ollama: {
+                        url: 'http://localhost:11434',
+                        model: 'llama3.1:8b'
+                    },
+                    openai: {
+                        apiKey: '',
+                        model: 'gpt-4o'
+                    },
+                    anthropic: {
+                        apiKey: '',
+                        model: 'claude-3-5-sonnet'
+                    },
+                    google: {
+                        apiKey: '',
+                        model: 'gemini-1.5-pro'
+                    },
+                    custom: {
+                        url: '',
+                        apiKey: '',
+                        model: ''
+                    },
+                    temperature: 0.7,
+                    maxTokens: 2000,
+                    timeout: 60
+                };
+            }
+            
+            populateSettingsForm(settings) {
+                document.getElementById('llm-provider').value = settings.provider || 'ollama';
+                document.getElementById('ollama-url').value = settings.ollama?.url || 'http://localhost:11434';
+                document.getElementById('ollama-model').value = settings.ollama?.model || 'llama3.1:8b';
+                document.getElementById('openai-api-key').value = settings.openai?.apiKey || '';
+                document.getElementById('openai-model').value = settings.openai?.model || 'gpt-4o';
+                document.getElementById('anthropic-api-key').value = settings.anthropic?.apiKey || '';
+                document.getElementById('anthropic-model').value = settings.anthropic?.model || 'claude-3-5-sonnet';
+                document.getElementById('google-api-key').value = settings.google?.apiKey || '';
+                document.getElementById('google-model').value = settings.google?.model || 'gemini-1.5-pro';
+                document.getElementById('custom-api-url').value = settings.custom?.url || '';
+                document.getElementById('custom-api-key').value = settings.custom?.apiKey || '';
+                document.getElementById('custom-model').value = settings.custom?.model || '';
+                document.getElementById('temperature').value = settings.temperature || 0.7;
+                document.getElementById('temperature-value').textContent = settings.temperature || 0.7;
+                document.getElementById('max-tokens').value = settings.maxTokens || 2000;
+                document.getElementById('timeout').value = settings.timeout || 60;
+                
+                this.toggleProviderSettings();
+            }
+            
+            async testConnection(e) {
+                e.preventDefault();
+                const testBtn = e.target;
+                const originalText = testBtn.textContent;
+                const statusDiv = document.getElementById('connection-status');
+                const indicator = document.getElementById('connection-indicator');
+                const message = document.getElementById('connection-message');
+                
+                // Show status
+                statusDiv.style.display = 'block';
+                testBtn.textContent = 'Testing...';
+                testBtn.disabled = true;
+                
+                // Set initial status
+                indicator.className = 'status-indicator';
+                message.textContent = 'Testing connection...';
+                
+                try {
+                    const settings = this.getSettingsFromForm();
+                    const response = await fetch('/api/settings/test', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(settings)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok && result.success) {
+                        indicator.className = 'status-indicator connected';
+                        message.textContent = `✅ Connected! Model: ${result.model} (${result.responseTime}ms)`;
+                        if (result.availableModels) {
+                            message.textContent += ` | Available: ${result.availableModels.slice(0, 3).join(', ')}${result.availableModels.length > 3 ? '...' : ''}`;
+                        }
+                    } else {
+                        indicator.className = 'status-indicator disconnected';
+                        message.textContent = `❌ Connection failed: ${result.error || 'Unknown error'}`;
+                    }
+                } catch (error) {
+                    indicator.className = 'status-indicator disconnected';
+                    message.textContent = `❌ Test failed: ${error.message}`;
+                } finally {
+                    testBtn.textContent = originalText;
+                    testBtn.disabled = false;
+                }
+            }
+            
+            getSettingsFromForm() {
+                const provider = document.getElementById('llm-provider').value;
+                
+                return {
+                    provider: provider,
+                    ollama: {
+                        url: document.getElementById('ollama-url').value,
+                        model: document.getElementById('ollama-model').value
+                    },
+                    openai: {
+                        apiKey: document.getElementById('openai-api-key').value,
+                        model: document.getElementById('openai-model').value
+                    },
+                    anthropic: {
+                        apiKey: document.getElementById('anthropic-api-key').value,
+                        model: document.getElementById('anthropic-model').value
+                    },
+                    google: {
+                        apiKey: document.getElementById('google-api-key').value,
+                        model: document.getElementById('google-model').value
+                    },
+                    custom: {
+                        url: document.getElementById('custom-api-url').value,
+                        apiKey: document.getElementById('custom-api-key').value,
+                        model: document.getElementById('custom-model').value
+                    },
+                    temperature: parseFloat(document.getElementById('temperature').value),
+                    maxTokens: parseInt(document.getElementById('max-tokens').value),
+                    timeout: parseInt(document.getElementById('timeout').value)
+                };
+            }
+            
+            async handleSaveSettings(e) {
+                e.preventDefault();
+                
+                const settings = this.getSettingsFromForm();
+                
+                try {
+                    const response = await fetch('/api/settings', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(settings)
+                    });
+                    
+                    if (response.ok) {
+                        alert('✅ Settings saved successfully!');
+                        this.hideSettingsModal();
+                        
+                        // Refresh server status to check new connection
+                        this.checkServerStatus();
+                    } else {
+                        const error = await response.json();
+                        alert(`❌ Failed to save settings: ${error.error}`);
+                    }
+                } catch (error) {
+                    console.error('Failed to save settings:', error);
+                    alert('Failed to save settings. Please try again.');
+                }
+            }
+        }
+        
+        // Global function for copy button
+        window.copyScript = function(script) {
+            navigator.clipboard.writeText(script);
+        };
         
         // Initialize the interface when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
@@ -1566,5 +1095,8 @@
             });
         }
     </script>
+    
+    <!-- Bootstrap 5 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

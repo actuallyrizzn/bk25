@@ -52,9 +52,21 @@ class BK25Core:
         
         # LLM configuration
         self.ollama_url = self.config.get('ollama_url', 'http://localhost:11434')
-        self.model = self.config.get('model', 'llama3.1:8b')
-        self.temperature = self.config.get('temperature', 0.1)
-        self.max_tokens = self.config.get('max_tokens', 2048)
+        # Get model based on current provider
+        current_provider = self.config.get('provider', 'ollama')
+        if current_provider == 'ollama':
+            self.model = self.config.get('ollama_model', 'llama3.1:8b')
+        elif current_provider == 'openai':
+            self.model = self.config.get('openai_model', 'gpt-4o')
+        elif current_provider == 'anthropic':
+            self.model = self.config.get('anthropic_model', 'claude-3-5-sonnet')
+        elif current_provider == 'google':
+            self.model = self.config.get('google_model', 'gemini-1.5-pro')
+        else:
+            self.model = self.config.get('model', 'llama3.1:8b')
+        
+        self.temperature = self.config.get('temperature', 0.7)
+        self.max_tokens = self.config.get('max_tokens', 2000)
         
         # Connection status
         self.ollama_connected = False
@@ -70,8 +82,8 @@ class BK25Core:
             # Initialize persona manager
             await self.persona_manager.initialize()
             
-            # Test Ollama connection
-            await self.test_ollama_connection()
+            # Test LLM providers
+            await self.test_llm_providers()
             
             self.logger.info("[SUCCESS] BK25 Core initialization complete")
             
@@ -79,26 +91,25 @@ class BK25Core:
             self.logger.error(f"[ERROR] BK25 Core initialization failed: {error}")
             raise
     
-    async def test_ollama_connection(self) -> bool:
-        """Test connection to Ollama service"""
+    async def test_llm_providers(self) -> None:
+        """Test all configured LLM providers"""
         try:
-            import httpx
+            # Test all providers
+            results = await self.llm_manager.test_providers()
             
-            async with httpx.AsyncClient() as client:
-                response = await client.get(f"{self.ollama_url}/api/tags", timeout=5.0)
-                if response.status_code == 200:
-                    self.ollama_connected = True
-                    self.logger.info(f"[SUCCESS] Ollama connected at {self.ollama_url}")
-                    return True
+            # Log results
+            for provider, available in results.items():
+                if available:
+                    self.logger.info(f"[SUCCESS] {provider} provider is available")
                 else:
-                    self.ollama_connected = False
-                    self.logger.warning(f"[WARNING] Ollama responded with status {response.status_code}")
-                    return False
-                    
+                    self.logger.warning(f"[WARNING] {provider} provider is not available")
+            
+            # Set Ollama connection status for backward compatibility
+            self.ollama_connected = results.get('ollama', False)
+            
         except Exception as error:
+            self.logger.error(f"[ERROR] Failed to test LLM providers: {error}")
             self.ollama_connected = False
-            self.logger.warning(f"[WARNING] Ollama connection failed: {error}")
-            return False
     
     def is_ollama_connected(self) -> bool:
         """Check if Ollama is connected"""
@@ -106,12 +117,7 @@ class BK25Core:
     
     async def generate_completion(self, prompt: str, conversation_id: Optional[str] = None) -> str:
         """Generate LLM completion using current persona"""
-        if not self.ollama_connected:
-            return "[WARNING] Ollama not connected. Please check your Ollama service."
-        
         try:
-            import httpx
-            
             # Build persona-specific prompt
             persona_prompt = self.persona_manager.build_persona_prompt(prompt)
             
@@ -121,39 +127,47 @@ class BK25Core:
                 if context:
                     persona_prompt = f"{context}\n\n{persona_prompt}"
             
-            # Prepare Ollama request
-            request_data = {
-                "model": self.model,
-                "prompt": persona_prompt,
-                "stream": False,
-                "options": {
-                    "temperature": self.temperature,
-                    "num_predict": self.max_tokens
-                }
-            }
+            # Get current LLM provider from config
+            current_provider = self.config.get('provider', 'ollama')
             
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    f"{self.ollama_url}/api/generate",
-                    json=request_data,
-                    timeout=30.0
-                )
+            # Get the appropriate model for the current provider
+            if current_provider == 'ollama':
+                model = self.config.get('ollama_model', 'llama3.1:8b')
+            elif current_provider == 'openai':
+                model = self.config.get('openai_model', 'gpt-4o')
+            elif current_provider == 'anthropic':
+                model = self.config.get('anthropic_model', 'claude-3-5-sonnet')
+            elif current_provider == 'google':
+                model = self.config.get('google_model', 'gemini-1.5-pro')
+            else:
+                model = self.model
+            
+            # Create LLM request
+            from .llm_integration import LLMRequest
+            request = LLMRequest(
+                prompt=persona_prompt,
+                model=model,
+                temperature=self.temperature,
+                max_tokens=self.max_tokens
+            )
+            
+            # Generate using LLM manager
+            response = await self.llm_manager.generate(request, preferred_provider=current_provider)
+            
+            if response.success:
+                completion = response.content
                 
-                if response.status_code == 200:
-                    result = response.json()
-                    completion = result.get('response', 'No response generated')
-                    
-                    # Store in conversation memory if conversation_id provided
-                    if conversation_id:
-                        self.memory.add_message(conversation_id, "user", prompt)
-                        self.memory.add_message(conversation_id, "assistant", completion)
-                    
-                    return completion
-                else:
-                    error_msg = f"Ollama API error: {response.status_code}"
-                    self.logger.error(error_msg)
-                    return error_msg
-                    
+                # Store in conversation memory if conversation_id provided
+                if conversation_id:
+                    self.memory.add_message(conversation_id, "user", prompt)
+                    self.memory.add_message(conversation_id, "assistant", completion)
+                
+                return completion
+            else:
+                error_msg = f"LLM generation failed: {response.error}"
+                self.logger.error(error_msg)
+                return error_msg
+                
         except Exception as error:
             error_msg = f"Error generating completion: {error}"
             self.logger.error(error_msg)
@@ -221,6 +235,8 @@ class BK25Core:
             'ollama_connected': self.ollama_connected,
             'ollama_url': self.ollama_url,
             'model': self.model,
+            'llm_provider': self.config.get('provider', 'ollama'),
+            'llm_providers_available': self.llm_manager.get_available_providers(),
             'personas_loaded': len(self.persona_manager.get_all_personas()),
             'channels_available': len(self.channel_manager.get_all_channels()),
             'conversations_active': len(self.memory.conversations),
