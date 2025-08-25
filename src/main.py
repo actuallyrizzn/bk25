@@ -624,57 +624,47 @@ async def chat_endpoint(request: Request):
         extracted_code = None
         
         if response_text and "```" in response_text:
-            try:
-                import markdown
-                import re
+            # SIMPLE STRING REPLACEMENT - find the code block and replace it
+            start = response_text.find("```")
+            end = response_text.find("```", start + 3)
+            
+            if start != -1 and end != -1:
+                # Extract the code content
+                code_section = response_text[start:end + 3]
                 
-                # Use regex to extract code blocks (more reliable than markdown parser for this)
-                code_block_pattern = r'```(\w+)?\n([\s\S]*?)```'
-                matches = re.findall(code_block_pattern, response_text)
+                # Get language from first line after ```
+                lines = code_section.split('\n')
+                language = "script"
+                if len(lines) > 1:
+                    first_line = lines[1].strip()
+                    if first_line and first_line.isalpha():
+                        language = first_line
                 
-                if matches:
-                    # Get the first code block
-                    language, code_content = matches[0]
-                    language = language or "script"
-                    code_content = code_content.strip()
-                    
-                    extracted_code = {
-                        "language": language,
-                        "code": code_content,
-                        "filename": f"Generated {language.capitalize()} Script"
-                    }
-                    
-                    print(f"[DEBUG] Extracted code block: language={language}, length={len(code_content)}")
-                    print(f"[DEBUG] Code preview: {code_content[:100]}...")
+                # Extract just the code (remove the ``` markers and language line)
+                code_content = code_section[3:]  # Remove first ```
+                if code_content.startswith('\n'):
+                    code_content = code_content[1:]
+                if '\n' in code_content:
+                    code_content = code_content.split('\n', 1)[1]  # Skip language line
+                code_content = code_content[:-3]  # Remove last ```
                 
-            except Exception as parse_error:
-                print(f"[WARNING] Failed to parse markdown: {parse_error}")
-                # Fallback to simple extraction
-                try:
-                    start = response_text.find("```")
-                    end = response_text.rfind("```")
-                    if start != -1 and end != -1 and end > start:
-                        code_content = response_text[start + 3:end].strip()
-                        # Remove language identifier if present
-                        if code_content.startswith("\n"):
-                            code_content = code_content[1:]
-                        if "\n" in code_content:
-                            first_line, rest = code_content.split("\n", 1)
-                            if not first_line.strip() or first_line.strip().isalpha():
-                                code_content = rest.strip()
-                        
-                        extracted_code = {
-                            "language": "script",
-                            "code": code_content,
-                            "filename": "Generated Script"
-                        }
-                        print(f"[DEBUG] Fallback extraction: length={len(code_content)}")
-                except Exception as fallback_error:
-                    print(f"[ERROR] Fallback extraction also failed: {fallback_error}")
+                extracted_code = {
+                    "language": language,
+                    "code": code_content.strip(),
+                    "filename": f"Generated {language.capitalize()} Script"
+                }
+                
+                # REPLACE THE CODE BLOCK WITH THE WIDGET
+                widget = f'<div class="mt-2 p-2 bg-info bg-opacity-10 rounded border border-info"><div class="d-flex align-items-center text-info"><i class="bi bi-code-slash me-2"></i><span class="small">→ <strong>{language.upper()}</strong> script generated! Check the output panel to the right.</span></div></div>'
+                
+                response_text = response_text[:start] + widget + response_text[end + 3:]
+                
+                print(f"[DEBUG] Replaced code block with widget: {language}")
         
-        # Return enhanced response with extracted code
+        # Return the modified response
         enhanced_result = {
             **result,
+            "response": response_text,  # This now has the widget instead of code
             "extracted_code": extracted_code
         }
         
