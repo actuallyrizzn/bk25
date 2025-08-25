@@ -54,6 +54,51 @@
             border: 1px solid #dee2e6;
         }
         
+        /* Markdown styling for assistant messages */
+        .message.assistant h1, .message.assistant h2, .message.assistant h3,
+        .message.assistant h4, .message.assistant h5, .message.assistant h6 {
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+            color: #333;
+        }
+        
+        .message.assistant p {
+            margin-bottom: 0.5em;
+        }
+        
+        .message.assistant ul, .message.assistant ol {
+            margin-bottom: 0.5em;
+            padding-left: 1.5em;
+        }
+        
+        .message.assistant li {
+            margin-bottom: 0.25em;
+        }
+        
+        .message.assistant code {
+            background: #f8f9fa;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9em;
+        }
+        
+        .message.assistant pre {
+            background: #f8f9fa;
+            padding: 0.75em;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 0.5em 0;
+        }
+        
+        .message.assistant blockquote {
+            border-left: 4px solid #dee2e6;
+            padding-left: 1em;
+            margin: 0.5em 0;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
         .message.error {
             background: #f8d7da;
             border: 1px solid #f5c6cb;
@@ -527,8 +572,21 @@
                  const messageDiv = document.createElement('div');
                  messageDiv.className = `message ${type}`;
                  
-                 // Simple message display - no complex parsing needed
-                 messageDiv.innerHTML = content;
+                 // Render markdown for assistant messages, plain text for others
+                 if (type === 'assistant') {
+                     // Configure marked.js for safe rendering
+                     marked.setOptions({
+                         breaks: true,
+                         gfm: true,
+                         sanitize: false
+                     });
+                     
+                     // Render markdown to HTML
+                     messageDiv.innerHTML = marked.parse(content);
+                 } else {
+                     // Plain text for user and system messages
+                     messageDiv.textContent = content;
+                 }
                  
                  this.chatContainer.appendChild(messageDiv);
                  this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
